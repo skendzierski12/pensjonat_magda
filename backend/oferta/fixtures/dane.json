@@ -1,0 +1,35 @@
+[
+  {
+    "model": "oferta.typpokoju",
+    "pk": 1,
+    "fields": {
+      "nazwa": "Pokój Dwuosobowy",
+      "opis": "Przytulny pokój z widokiem na dolinę. Własna łazienka z prysznicem, balkon z leżakami i stolikiem. Idealne miejsce dla par.",
+      "liczba_osob": 2,
+      "powierzchnia": "22.00",
+      "aktywny": true
+    }
+  },
+  {
+    "model": "oferta.typpokoju",
+    "pk": 2,
+    "fields": {
+      "nazwa": "Apartament Rodzinny",
+      "opis": "Przestronny apartament dla rodzin z dziećmi. Dwa oddzielne pokoje, aneks kuchenny, duży taras z widokiem na góry.",
+      "liczba_osob": 4,
+      "powierzchnia": "48.00",
+      "aktywny": true
+    }
+  },
+  {
+    "model": "oferta.typpokoju",
+    "pk": 3,
+    "fields": {
+      "nazwa": "Pokój Górski Premium",
+      "opis": "Panoramiczny widok na Tatry, kominek, drewniane wykończenia z regionalnych materiałów. Luksus w górskim wydaniu.",
+      "liczba_osob": 2,
+      "powierzchnia": "32.00",
+      "aktywny": true
+    }
+  }
+]

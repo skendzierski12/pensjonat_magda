@@ -1,0 +1,102 @@
+[
+  {
+    "model": "restauracja.kategoriamenu",
+    "pk": 1,
+    "fields": {
+      "nazwa": "Zupy",
+      "kolejnosc": 1,
+      "aktywna": true
+    }
+  },
+  {
+    "model": "restauracja.kategoriamenu",
+    "pk": 2,
+    "fields": {
+      "nazwa": "Dania główne",
+      "kolejnosc": 2,
+      "aktywna": true
+    }
+  },
+  {
+    "model": "restauracja.kategoriamenu",
+    "pk": 3,
+    "fields": {
+      "nazwa": "Przystawki",
+      "kolejnosc": 3,
+      "aktywna": true
+    }
+  },
+  {
+    "model": "restauracja.kategoriamenu",
+    "pk": 4,
+    "fields": {
+      "nazwa": "Desery",
+      "kolejnosc": 4,
+      "aktywna": true
+    }
+  },
+  {
+    "model": "restauracja.danie",
+    "pk": 1,
+    "fields": {
+      "kategoria": 1,
+      "nazwa": "Żurek góralski",
+      "opis": "Tradycyjny żurek na zakwasie z jajkiem, kiełbasą i ziemniakami.",
+      "cena": "18.00",
+      "zdjecie": null,
+      "kolejnosc": 1,
+      "widoczne": true,
+      "wegetarianskie": false,
+      "wegańskie": false,
+      "bezglutenowe": false
+    }
+  },
+  {
+    "model": "restauracja.danie",
+    "pk": 2,
+    "fields": {
+      "kategoria": 2,
+      "nazwa": "Pierogi z owczym serem",
+      "opis": "Ręcznie lepione pierogi nadziewane oscypkiem i ziemniakami, podawane ze skwarkami.",
+      "cena": "28.00",
+      "zdjecie": null,
+      "kolejnosc": 1,
+      "widoczne": true,
+      "wegetarianskie": true,
+      "wegańskie": false,
+      "bezglutenowe": false
+    }
+  },
+  {
+    "model": "restauracja.danie",
+    "pk": 3,
+    "fields": {
+      "kategoria": 2,
+      "nazwa": "Pstrąg z Dunajca",
+      "opis": "Świeży pstrąg z lokalnych hodowli, grillowany z masłem czosnkowym i ziołami.",
+      "cena": "45.00",
+      "zdjecie": null,
+      "kolejnosc": 2,
+      "widoczne": true,
+      "wegetarianskie": false,
+      "wegańskie": false,
+      "bezglutenowe": true
+    }
+  },
+  {
+    "model": "restauracja.danie",
+    "pk": 4,
+    "fields": {
+      "kategoria": 3,
+      "nazwa": "Oscypek z borówkami",
+      "opis": "Grillowany oscypek z konfiturą borówkową i żurawiną.",
+      "cena": "22.00",
+      "zdjecie": null,
+      "kolejnosc": 1,
+      "widoczne": true,
+      "wegetarianskie": true,
+      "wegańskie": false,
+      "bezglutenowe": true
+    }
+  }
+]

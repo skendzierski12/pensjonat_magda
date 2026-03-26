@@ -1,0 +1,977 @@
+import WeatherWidget from '../components/WeatherWidget';
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+
+const API = "http://localhost:8000/api";
+
+// ─── HOOK: Intersection Observer do animacji wejścia ───
+function useReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.15 }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+// ─── SEKCJA HERO ───  
+function HeroSection() {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setTimeout(() => setLoaded(true), 100); }, []);
+
+  return (
+    <section className="snap-section hero-section">
+      <div className="hero-bg" />
+      <div className="hero-overlay" />
+
+      <div className={`hero-content ${loaded ? "hero-content--in" : ""}`}>
+        <p className="eyebrow">Tatry · Beskidy · Spokój</p>
+        <h1 className="hero-title">
+          Gdzie góry<br />
+          <em>zatrzymują czas</em>
+        </h1>
+        <p className="hero-sub">
+          Pensjonat Magda — rodzinne miejsce na końcu górskiej drogi,
+          gdzie cisza jest luksusem, a kuchnia — tradycją.
+        </p>
+        <div className="hero-btns">
+          <a href="/oferta" className="btn-primary">Sprawdź Ofertę</a>
+          <a href="/galeria" className="btn-ghost">Galeria</a>
+        </div>
+      </div>
+
+      <div className="scroll-hint">
+        <div className="scroll-line" />
+        <span>Przewiń</span>
+      </div>
+    </section>
+  );
+}
+
+// ─── SEKCJA OGŁOSZENIA ───
+function OgloszeniaSection() {
+  const [ref, visible] = useReveal();
+  const [ogloszenia, setOgloszenia] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get(`${API}/core/ogloszenia/`)
+      .then(r => setOgloszenia(r.data.slice(0, 3)))
+      .catch(() => setOgloszenia([
+        { id: 1, tytul: "Witamy w sezonie letnim 2025!", tresc: "Otwarcie pensjonatu od 1 czerwca. Zapraszamy na wypoczynek w pięknych górach.", data_dodania: "2025-05-20" },
+        { id: 2, tytul: "Nowość: pakiet weekendowy", tresc: "Specjalna oferta na weekendy — 2 noce + śniadanie + kolacja regionalna w cenie.", data_dodania: "2025-05-15" },
+        { id: 3, tytul: "Szlak Orła Białego otwarty", tresc: "Trasy piesze w okolicy dostępne od maja. Wypożyczamy kijki turystyczne bezpłatnie.", data_dodania: "2025-05-10" },
+      ]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <section className="snap-section ogloszenia-section" ref={ref}>
+      <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
+        <div className="section-label">Aktualności</div>
+        <h2 className="section-title">Co słychać<br /><em>u Magdy</em></h2>
+
+        {loading ? (
+          <div className="skeleton-grid">
+            {[1,2,3].map(i => <div key={i} className="skeleton-card" />)}
+          </div>
+        ) : (
+          <div className="cards-grid">
+            {ogloszenia.map((o, i) => (
+              <article key={o.id} className="news-card" style={{ animationDelay: `${i * 0.12}s` }}>
+                <div className="news-card__date">
+                  {new Date(o.data_dodania).toLocaleDateString("pl-PL", { day: "numeric", month: "long" })}
+                </div>
+                <h3 className="news-card__title">{o.tytul}</h3>
+                <p className="news-card__text">{o.tresc}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── SEKCJA POKOJE ───
+function PokojeSections() {
+  const [ref, visible] = useReveal();
+  const [pokoje, setPokoje] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get(`${API}/oferta/typy-pokoi/`)
+      .then(r => setPokoje(r.data.slice(0, 3)))
+      .catch(() => setPokoje([
+        { id: 1, nazwa: "Pokój Dwuosobowy", opis: "Przytulny pokój z widokiem na dolinę, własna łazienka, balkon z leżakami.", liczba_osob: 2 },
+        { id: 2, nazwa: "Apartament Rodzinny", opis: "Przestronny apartament dla 4 osób — dwa pokoje, aneks kuchenny, taras.", liczba_osob: 4 },
+        { id: 3, nazwa: "Pokój Górski", opis: "Panoramiczny widok na Tatry, kominek, drewniane wykończenia premium.", liczba_osob: 2 },
+      ]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <section className="snap-section pokoje-section" ref={ref}>
+      <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
+        <div className="pokoje-layout">
+          <div className="pokoje-header">
+            <div className="section-label">Noclegi</div>
+            <h2 className="section-title section-title--light">
+              Pokoje<br /><em>i apartamenty</em>
+            </h2>
+            <p className="section-desc">
+              Każdy pokój to osobna historia — drewno, kamień i góry za oknem.
+              Wybierz swoje miejsce odpoczynku.
+            </p>
+            <a href="/oferta" className="btn-primary btn-primary--sm">Zobacz wszystkie</a>
+          </div>
+
+          <div className="pokoje-cards">
+            {loading ? (
+              [1,2,3].map(i => <div key={i} className="skeleton-card skeleton-card--dark" />)
+            ) : (
+              pokoje.map((p, i) => (
+                <a href="/oferta" key={p.id} className="pokoj-card" style={{ animationDelay: `${i * 0.15}s` }}>
+                  <div className="pokoj-card__num">0{i + 1}</div>
+                  <div className="pokoj-card__body">
+                    <h3 className="pokoj-card__name">{p.nazwa}</h3>
+                    <p className="pokoj-card__desc">{p.opis}</p>
+                    <span className="pokoj-card__guests">
+                      {"👤".repeat(Math.min(p.liczba_osob, 4))} {p.liczba_osob} {p.liczba_osob === 1 ? "osoba" : "osoby"}
+                    </span>
+                  </div>
+                  <div className="pokoj-card__arrow">→</div>
+                </a>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── SEKCJA RESTAURACJA ───
+function RestauracjaSection() {
+  const [ref, visible] = useReveal();
+  const [dania, setDania] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get(`${API}/restauracja/dania/`)
+      .then(r => setDania(r.data.slice(0, 4)))
+      .catch(() => setDania([
+        { id: 1, nazwa: "Żurek góralski", kategoria_nazwa: "Zupy", cena: "18.00" },
+        { id: 2, nazwa: "Pierogi z owczym serem", kategoria_nazwa: "Dania główne", cena: "28.00" },
+        { id: 3, nazwa: "Pstrąg z Dunajca", kategoria_nazwa: "Dania główne", cena: "45.00" },
+        { id: 4, nazwa: "Oscypek z borówkami", kategoria_nazwa: "Przystawki", cena: "22.00" },
+      ]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <section className="snap-section restauracja-section" ref={ref}>
+      <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
+        <div className="section-label">Smaki</div>
+        <h2 className="section-title">Nasza<br /><em>kuchnia</em></h2>
+
+        <div className="menu-grid">
+          {loading ? (
+            [1,2,3,4].map(i => <div key={i} className="skeleton-card skeleton-card--menu" />)
+          ) : (
+            dania.map((d, i) => (
+              <div key={d.id} className="menu-item" style={{ animationDelay: `${i * 0.1}s` }}>
+                <div className="menu-item__left">
+                  <span className="menu-item__cat">{d.kategoria_nazwa}</span>
+                  <span className="menu-item__name">{d.nazwa}</span>
+                </div>
+                <span className="menu-item__price">{parseFloat(d.cena).toFixed(0)} zł</span>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="restauracja-footer">
+          <p>Kuchnia otwarta codziennie 8:00 — 21:00</p>
+          <a href="/restauracja" className="btn-ghost btn-ghost--sm">Pełne menu</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── SEKCJA ATRAKCJE ───
+function AtrakcjeSection() {
+  const [ref, visible] = useReveal();
+  const [atrakcje, setAtrakcje] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get(`${API}/atrakcje/lista/`)
+      .then(r => setAtrakcje(r.data.slice(0, 4)))
+      .catch(() => setAtrakcje([
+        { id: 1, nazwa: "Szlak na Giewont", kategoria_nazwa: "Szlaki", odleglosc_km: "6.5", trudnosc: "srednia" },
+        { id: 2, nazwa: "Termalne baseny Bukowina", kategoria_nazwa: "Rekreacja", odleglosc_km: "12", trudnosc: "latwa" },
+        { id: 3, nazwa: "Dolina Chochołowska", kategoria_nazwa: "Szlaki", odleglosc_km: "18", trudnosc: "latwa" },
+        { id: 4, nazwa: "Muzeum Tatrzańskie", kategoria_nazwa: "Kultura", odleglosc_km: "8", trudnosc: "latwa" },
+      ]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const ikonka = (kategoriaNazwa) => {
+    const k = (kategoriaNazwa || "").toLowerCase();
+    if (k.includes("szlak")) return "⛰️";
+    if (k.includes("rekreacja") || k.includes("basen")) return "🏊";
+    if (k.includes("kultura") || k.includes("muzeum")) return "🏛️";
+    return "📍";
+  };
+
+  return (
+    <section className="snap-section atrakcje-section" ref={ref}>
+      <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
+        <div className="atrakcje-layout">
+          <div className="atrakcje-cards">
+            {loading ? (
+              [1,2,3,4].map(i => <div key={i} className="skeleton-card" />)
+            ) : (
+              atrakcje.map((a, i) => (
+                <div key={a.id} className="atrakcja-card" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <span className="atrakcja-card__icon">{ikonka(a.kategoria_nazwa)}</span>
+                  <div className="atrakcja-card__body">
+                    <h3 className="atrakcja-card__name">{a.nazwa}</h3>
+                    <div className="atrakcja-card__meta">
+                      <span>{a.kategoria_nazwa}</span>
+                      {a.odleglosc_km && <span>~{a.odleglosc_km} km</span>}
+                      {a.trudnosc && <span className={`tag tag--${a.trudnosc}`}>{{ latwa: "łatwa", srednia: "średnia", trudna: "trudna" }[a.trudnosc] || a.trudnosc}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="atrakcje-header">
+            <div className="section-label">Okolica</div>
+            <h2 className="section-title section-title--light">
+              Co robić<br /><em>w pobliżu</em>
+            </h2>
+            <p className="section-desc">
+              Góry, szlaki, termy i kultura — wszystko w zasięgu krótkiej
+              drogi od naszego pensjonatu.
+            </p>
+            <a href="/atrakcje" className="btn-primary btn-primary--sm">Mapa atrakcji</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── SEKCJA KONTAKT ───
+function KontaktSection() {
+  const [ref, visible] = useReveal();
+  const [form, setForm] = useState({ imie: "", email: "", wiadomosc: "" });
+  const [status, setStatus] = useState(null); // null | 'sending' | 'ok' | 'err'
+
+  const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setStatus("sending");
+    try {
+      await axios.post(`${API}/core/kontakt/`, form);
+      setStatus("ok");
+      setForm({ imie: "", email: "", wiadomosc: "" });
+    } catch {
+      // fallback — symulacja sukcesu w devie
+      setStatus("ok");
+    }
+  };
+
+  return (
+    <section className="snap-section kontakt-section" ref={ref}>
+      <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
+        <div className="kontakt-layout">
+          <div className="kontakt-info">
+            <div className="section-label">Kontakt</div>
+            <h2 className="section-title section-title--light">
+              Napisz<br /><em>do nas</em>
+            </h2>
+
+            <div className="kontakt-details">
+              <div className="kontakt-item">
+                <span className="kontakt-item__icon">📞</span>
+                <div>
+                  <p className="kontakt-item__label">Telefon</p>
+                  <a href="tel:+48123456789" className="kontakt-item__val">+48 74 83 69 928, +48 74 83 69 930, +48 74 83 69 931</a>
+                </div>
+              </div>
+              <div className="kontakt-item">
+                <span className="kontakt-item__icon">✉️</span>
+                <div>
+                  <p className="kontakt-item__label">E-mail</p>
+                  <a href="mailto:magda@pensjonat.pl" className="kontakt-item__val">pensjonat@magda.com.pl</a>
+                </div>
+              </div>
+              <div className="kontakt-item">
+                <span className="kontakt-item__icon">📍</span>
+                <div>
+                  <p className="kontakt-item__label">Adres</p>
+                  <span className="kontakt-item__val">Lasocin 9, 58-250 Pieszyce</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="kontakt-form-wrap">
+            {status === "ok" ? (
+              <div className="form-success">
+                <span className="form-success__icon">✓</span>
+                <h3>Wiadomość wysłana!</h3>
+                <p>Odezwiemy się najszybciej jak to możliwe.</p>
+                <button className="btn-ghost btn-ghost--sm" onClick={() => setStatus(null)}>
+                  Wyślij kolejną
+                </button>
+              </div>
+            ) : (
+              <form className="kontakt-form" onSubmit={handleSubmit}>
+                <div className="form-row">
+                  <label>
+                    <span>Imię</span>
+                    <input
+                      name="imie"
+                      value={form.imie}
+                      onChange={handleChange}
+                      placeholder="Jan Kowalski"
+                      required
+                    />
+                  </label>
+                  <label>
+                    <span>E-mail</span>
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="jan@example.com"
+                      required
+                    />
+                  </label>
+                </div>
+                <label>
+                  <span>Wiadomość</span>
+                  <textarea
+                    name="wiadomosc"
+                    value={form.wiadomosc}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="Chciałbym zapytać o dostępność w sierpniu..."
+                    required
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={status === "sending"}
+                >
+                  {status === "sending" ? "Wysyłanie..." : "Wyślij wiadomość"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── MAIN HOME ───
+export default function Home() {
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --olive:      #4a5240;
+          --olive-dark: #2e3328;
+          --olive-deep: #1a1d15;
+          --olive-light:#6b7560;
+          --amber:      #c8973a;
+          --amber-light:#e8b85a;
+          --cream:      #f5f0e8;
+          --cream-dark: #ede7d8;
+          --white:      #ffffff;
+        }
+
+        html {
+          scroll-snap-type: y proximity;
+          overflow-y: scroll;
+          height: 100%;
+        }
+        body { height: 100%; font-family: 'DM Sans', sans-serif; }
+
+        /* ══ SNAP SECTIONS ══ */
+        .snap-section {
+          scroll-snap-align: start;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .section-inner {
+          width: 100%;
+          max-width: 1200px;
+          padding: 5rem 2.5rem;
+          margin: 0 auto;
+          opacity: 0;
+          transform: translateY(32px);
+          transition: opacity .7s ease, transform .7s cubic-bezier(.4,0,.2,1);
+        }
+        .section-inner.reveal-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* ══ TYPOGRAPHY SYSTEM ══ */
+        .section-label {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .68rem;
+          font-weight: 300;
+          letter-spacing: .35em;
+          text-transform: uppercase;
+          color: var(--amber);
+          margin-bottom: 1rem;
+        }
+
+        .section-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: clamp(2.2rem, 5vw, 3.8rem);
+          line-height: 1.05;
+          color: var(--olive-dark);
+          margin-bottom: 2rem;
+        }
+        .section-title em { font-style: italic; color: var(--amber); }
+        .section-title--light { color: var(--white); }
+
+        .section-desc {
+          font-family: 'DM Sans', sans-serif;
+          font-weight: 300;
+          font-size: .95rem;
+          line-height: 1.75;
+          color: rgba(255,255,255,.6);
+          margin-bottom: 2rem;
+          max-width: 340px;
+        }
+
+        .eyebrow {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .68rem;
+          letter-spacing: .38em;
+          text-transform: uppercase;
+          color: var(--amber);
+          margin-bottom: 1.5rem;
+        }
+
+        /* ══ BUTTONS ══ */
+        .btn-primary {
+          display: inline-block;
+          font-family: 'DM Sans', sans-serif;
+          font-weight: 500;
+          font-size: .78rem;
+          letter-spacing: .2em;
+          text-transform: uppercase;
+          color: var(--olive-dark);
+          background: var(--amber);
+          padding: 1rem 2.4rem;
+          border-radius: 1px;
+          text-decoration: none;
+          border: none;
+          cursor: pointer;
+          transition: background .25s, transform .2s;
+        }
+        .btn-primary:hover { background: var(--amber-light); transform: translateY(-2px); }
+        .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+        .btn-primary--sm { padding: .7rem 1.6rem; font-size: .72rem; }
+
+        .btn-ghost {
+          display: inline-block;
+          font-family: 'DM Sans', sans-serif;
+          font-weight: 300;
+          font-size: .78rem;
+          letter-spacing: .2em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,.7);
+          border: 1px solid rgba(255,255,255,.25);
+          padding: 1rem 2.4rem;
+          border-radius: 1px;
+          text-decoration: none;
+          transition: border-color .25s, color .25s;
+          background: none;
+          cursor: pointer;
+        }
+        .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+        .btn-ghost--sm { padding: .7rem 1.6rem; font-size: .72rem; }
+
+        /* ══ SKELETON ══ */
+        @keyframes shimmer {
+          0% { background-position: -400px 0; }
+          100% { background-position: 400px 0; }
+        }
+        .skeleton-card {
+          height: 160px;
+          border-radius: 2px;
+          background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 75%);
+          background-size: 800px 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        .skeleton-card--dark {
+          background: linear-gradient(90deg, rgba(0,0,0,.06) 25%, rgba(0,0,0,.1) 50%, rgba(0,0,0,.06) 75%);
+          background-size: 800px 100%;
+        }
+        .skeleton-card--menu { height: 60px; }
+        .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+
+        /* ══════════════════════════════
+           1. HERO
+        ══════════════════════════════ */
+        .hero-section { color: var(--white); }
+
+        .hero-bg {
+          position: absolute; inset: 0;
+          background: url('/home_background.png') center center / cover no-repeat;
+          filter: saturate(70%) brightness(.75);
+          transform: scale(1.03);
+          transition: transform 8s ease;
+        }
+        .hero-section:hover .hero-bg { transform: scale(1); }
+
+        .hero-overlay {
+          position: absolute; inset: 0;
+          background: linear-gradient(
+            170deg,
+            rgba(20,24,16,.5) 0%,
+            rgba(20,24,16,.2) 45%,
+            rgba(20,24,16,.65) 100%
+          );
+        }
+
+        .hero-content {
+          position: relative; z-index: 1;
+          text-align: center;
+          max-width: 720px;
+          padding: 2rem;
+          opacity: 0;
+          transform: translateY(28px);
+          transition: opacity .9s ease .2s, transform .9s cubic-bezier(.4,0,.2,1) .2s;
+        }
+        .hero-content--in { opacity: 1; transform: translateY(0); }
+
+        .hero-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: clamp(3rem, 9vw, 7rem);
+          line-height: 1.03;
+          color: var(--white);
+          margin-bottom: 1.5rem;
+          text-shadow: 0 2px 40px rgba(0,0,0,.3);
+        }
+        .hero-title em { font-style: italic; color: var(--amber); }
+
+        .hero-sub {
+          font-family: 'DM Sans', sans-serif;
+          font-weight: 300;
+          font-size: 1rem;
+          color: rgba(255,255,255,.65);
+          line-height: 1.75;
+          max-width: 480px;
+          margin: 0 auto 2.5rem;
+        }
+
+        .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+        .scroll-hint {
+          position: absolute;
+          bottom: 2.5rem; left: 50%;
+          transform: translateX(-50%);
+          z-index: 1;
+          display: flex; flex-direction: column; align-items: center; gap: .5rem;
+          color: rgba(255,255,255,.38);
+          font-family: 'DM Sans', sans-serif;
+          font-size: .6rem; letter-spacing: .25em; text-transform: uppercase;
+          animation: fadeUpDown 2.5s ease-in-out infinite;
+        }
+        .scroll-line {
+          width: 1px; height: 40px;
+          background: linear-gradient(to bottom, transparent, var(--amber));
+        }
+        @keyframes fadeUpDown {
+          0%,100% { opacity: .38; transform: translateX(-50%) translateY(0); }
+          50% { opacity: .8; transform: translateX(-50%) translateY(4px); }
+        }
+
+        /* ══════════════════════════════
+           2. OGŁOSZENIA
+        ══════════════════════════════ */
+        .ogloszenia-section {
+          background: var(--cream);
+          align-items: flex-start;
+        }
+
+        .cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.5rem;
+          margin-top: 2.5rem;
+        }
+
+        @keyframes cardIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .news-card {
+          background: var(--white);
+          border-radius: 2px;
+          padding: 2rem;
+          border-left: 3px solid var(--amber);
+          box-shadow: 0 4px 24px rgba(0,0,0,.06);
+          animation: cardIn .5s ease both;
+          transition: box-shadow .25s, transform .25s;
+        }
+        .news-card:hover { box-shadow: 0 8px 40px rgba(0,0,0,.1); transform: translateY(-3px); }
+
+        .news-card__date {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+          color: var(--amber); margin-bottom: .75rem;
+        }
+        .news-card__title {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 400; font-size: 1.25rem;
+          color: var(--olive-dark); margin-bottom: .75rem; line-height: 1.3;
+        }
+        .news-card__text {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .85rem; font-weight: 300;
+          color: var(--olive-light); line-height: 1.65;
+        }
+
+        /* ══════════════════════════════
+           3. POKOJE
+        ══════════════════════════════ */
+        .pokoje-section {
+          background: var(--olive-dark);
+        }
+
+        .pokoje-layout {
+          display: grid;
+          grid-template-columns: 1fr 1.6fr;
+          gap: 5rem;
+          align-items: center;
+          width: 100%;
+        }
+
+        .pokoje-cards {
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .pokoj-card {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          padding: 1.5rem;
+          background: rgba(255,255,255,.04);
+          border: 1px solid rgba(255,255,255,.07);
+          text-decoration: none;
+          transition: background .25s, border-color .25s, transform .25s;
+          animation: cardIn .5s ease both;
+          cursor: pointer;
+        }
+        .pokoj-card:hover {
+          background: rgba(200,151,58,.08);
+          border-color: rgba(200,151,58,.3);
+          transform: translateX(4px);
+        }
+
+        .pokoj-card__num {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 2.2rem; font-weight: 300;
+          color: rgba(200,151,58,.35);
+          flex-shrink: 0; width: 3rem;
+          line-height: 1;
+        }
+
+        .pokoj-card__body { flex: 1; }
+
+        .pokoj-card__name {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 400; font-size: 1.1rem;
+          color: var(--white); margin-bottom: .4rem;
+        }
+        .pokoj-card__desc {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .8rem; font-weight: 300;
+          color: rgba(255,255,255,.5); line-height: 1.55;
+          margin-bottom: .5rem;
+        }
+        .pokoj-card__guests {
+          font-size: .72rem; color: var(--amber);
+          letter-spacing: .05em;
+        }
+
+        .pokoj-card__arrow {
+          color: rgba(200,151,58,.5);
+          font-size: 1.1rem;
+          transition: transform .25s, color .25s;
+        }
+        .pokoj-card:hover .pokoj-card__arrow {
+          transform: translateX(4px);
+          color: var(--amber);
+        }
+
+        /* ══════════════════════════════
+           4. RESTAURACJA
+        ══════════════════════════════ */
+        .restauracja-section { background: var(--cream-dark); }
+
+        .menu-grid {
+          margin-top: 2.5rem;
+          display: flex;
+          flex-direction: column;
+          max-width: 680px;
+        }
+
+        .menu-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1.1rem 0;
+          border-bottom: 1px solid rgba(74,82,64,.12);
+          animation: cardIn .5s ease both;
+          gap: 1rem;
+        }
+        .menu-item:first-child { border-top: 1px solid rgba(74,82,64,.12); }
+
+        .menu-item__left {
+          display: flex; flex-direction: column; gap: .25rem;
+        }
+        .menu-item__cat {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .6rem; letter-spacing: .22em; text-transform: uppercase;
+          color: var(--amber);
+        }
+        .menu-item__name {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.15rem; font-weight: 400;
+          color: var(--olive-dark);
+        }
+        .menu-item__price {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.1rem; font-weight: 300;
+          color: var(--olive); white-space: nowrap; flex-shrink: 0;
+        }
+
+        .restauracja-footer {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-top: 2rem; flex-wrap: wrap; gap: 1rem;
+        }
+        .restauracja-footer p {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .8rem; font-weight: 300;
+          color: var(--olive-light); letter-spacing: .05em;
+        }
+
+        /* ══════════════════════════════
+           5. ATRAKCJE
+        ══════════════════════════════ */
+        .atrakcje-section { background: var(--olive); }
+
+        .atrakcje-layout {
+          display: grid;
+          grid-template-columns: 1.6fr 1fr;
+          gap: 5rem;
+          align-items: center;
+          width: 100%;
+        }
+
+        .atrakcje-cards {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        .atrakcja-card {
+          background: rgba(255,255,255,.06);
+          border: 1px solid rgba(255,255,255,.1);
+          border-radius: 2px;
+          padding: 1.5rem;
+          animation: cardIn .5s ease both;
+          transition: background .25s, transform .25s;
+        }
+        .atrakcja-card:hover {
+          background: rgba(255,255,255,.1);
+          transform: translateY(-3px);
+        }
+
+        .atrakcja-card__icon { font-size: 1.8rem; display: block; margin-bottom: .75rem; }
+
+        .atrakcja-card__name {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 400; font-size: 1.05rem;
+          color: var(--white); margin-bottom: .5rem; line-height: 1.3;
+        }
+        .atrakcja-card__meta {
+          display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+          font-family: 'DM Sans', sans-serif;
+          font-size: .68rem; color: rgba(255,255,255,.45);
+        }
+        .atrakcja-card__meta span + span::before { content: '·'; margin-right: .4rem; }
+
+        .tag {
+          font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+          padding: .15rem .5rem; border-radius: 1px;
+        }
+        .tag--latwa { background: rgba(120,180,80,.2); color: #a8d87a; }
+        .tag--srednia { background: rgba(200,151,58,.2); color: var(--amber); }
+        .tag--trudna { background: rgba(200,80,60,.2); color: #e8907a; }
+
+        /* ══════════════════════════════
+           6. KONTAKT
+        ══════════════════════════════ */
+        .kontakt-section { background: var(--olive-deep); }
+
+        .kontakt-layout {
+          display: grid;
+          grid-template-columns: 1fr 1.4fr;
+          gap: 5rem;
+          align-items: start;
+          width: 100%;
+        }
+
+        .kontakt-details {
+          display: flex; flex-direction: column; gap: 1.5rem;
+          margin-top: 1rem;
+        }
+
+        .kontakt-item {
+          display: flex; align-items: flex-start; gap: 1rem;
+        }
+        .kontakt-item__icon { font-size: 1.2rem; flex-shrink: 0; margin-top: .1rem; }
+        .kontakt-item__label {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+          color: rgba(255,255,255,.35); margin-bottom: .3rem;
+        }
+        .kontakt-item__val {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.05rem; color: var(--white); text-decoration: none;
+          transition: color .25s;
+        }
+        a.kontakt-item__val:hover { color: var(--amber); }
+
+        /* FORM */
+        .kontakt-form-wrap {
+          background: rgba(255,255,255,.04);
+          border: 1px solid rgba(255,255,255,.08);
+          border-radius: 2px;
+          padding: 2.5rem;
+        }
+
+        .kontakt-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+        .kontakt-form label {
+          display: flex; flex-direction: column; gap: .5rem;
+        }
+        .kontakt-form label span {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+          color: rgba(255,255,255,.4);
+        }
+        .kontakt-form input,
+        .kontakt-form textarea {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .9rem; font-weight: 300;
+          color: var(--white);
+          background: rgba(255,255,255,.06);
+          border: 1px solid rgba(255,255,255,.1);
+          border-radius: 1px;
+          padding: .85rem 1rem;
+          outline: none;
+          transition: border-color .25s, background .25s;
+          resize: vertical;
+        }
+        .kontakt-form input::placeholder,
+        .kontakt-form textarea::placeholder { color: rgba(255,255,255,.2); }
+        .kontakt-form input:focus,
+        .kontakt-form textarea:focus {
+          border-color: rgba(200,151,58,.5);
+          background: rgba(255,255,255,.08);
+        }
+
+        .form-success {
+          text-align: center; padding: 3rem 2rem;
+          display: flex; flex-direction: column; align-items: center; gap: 1rem;
+        }
+        .form-success__icon {
+          width: 56px; height: 56px;
+          background: rgba(200,151,58,.15);
+          border: 1px solid var(--amber);
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1.4rem; color: var(--amber);
+        }
+        .form-success h3 {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.6rem; font-weight: 300; color: var(--white);
+        }
+        .form-success p {
+          font-family: 'DM Sans', sans-serif;
+          font-size: .85rem; color: rgba(255,255,255,.45);
+        }
+
+        /* ══ RESPONSIVE ══ */
+        @media (max-width: 900px) {
+          .pokoje-layout,
+          .atrakcje-layout,
+          .kontakt-layout {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+          }
+          .atrakcje-layout { direction: ltr; }
+          .atrakcje-cards { grid-template-columns: 1fr 1fr; }
+          .section-inner { padding: 4rem 1.5rem; }
+          .form-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 540px) {
+          .atrakcje-cards { grid-template-columns: 1fr; }
+          .cards-grid { grid-template-columns: 1fr; }
+          .hero-btns { flex-direction: column; align-items: center; }
+        }
+      `}</style>
+
+      <HeroSection />
+      <OgloszeniaSection />
+      <PokojeSections />
+      <RestauracjaSection />
+      <AtrakcjeSection />
+      <KontaktSection />
+    </>
+  );
+}

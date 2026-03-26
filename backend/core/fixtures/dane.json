@@ -1,0 +1,38 @@
+[
+  {
+    "model": "core.ogloszenie",
+    "pk": 1,
+    "fields": {
+      "tytul": "Otwarcie sezonu letniego 2025",
+      "tresc": "Z radością informujemy, że od 1 czerwca pensjonat jest otwarty na gości. Zapraszamy na wypoczynek w pięknych górach!",
+      "data_dodania": "2025-05-20T10:00:00Z",
+      "data_wygasniecia": null,
+      "aktywne": true,
+      "wazne": true
+    }
+  },
+  {
+    "model": "core.ogloszenie",
+    "pk": 2,
+    "fields": {
+      "tytul": "Nowy pakiet weekendowy",
+      "tresc": "Specjalna oferta na weekendy — 2 noce z pełnym wyżywieniem w atrakcyjnej cenie. Rezerwuj już dziś!",
+      "data_dodania": "2025-05-15T09:00:00Z",
+      "data_wygasniecia": null,
+      "aktywne": true,
+      "wazne": false
+    }
+  },
+  {
+    "model": "core.ogloszenie",
+    "pk": 3,
+    "fields": {
+      "tytul": "Szlaki górskie otwarte",
+      "tresc": "Wszystkie szlaki w okolicy są już dostępne. Wypożyczamy kijki turystyczne bezpłatnie dla naszych gości.",
+      "data_dodania": "2025-05-10T08:00:00Z",
+      "data_wygasniecia": null,
+      "aktywne": true,
+      "wazne": false
+    }
+  }
+]

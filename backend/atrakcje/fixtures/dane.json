@@ -1,0 +1,93 @@
+[
+  {
+    "model": "atrakcje.kategoriaatrakcji",
+    "pk": 1,
+    "fields": {
+      "nazwa": "Szlaki górskie",
+      "ikona": "fa-hiking",
+      "kolejnosc": 1
+    }
+  },
+  {
+    "model": "atrakcje.kategoriaatrakcji",
+    "pk": 2,
+    "fields": {
+      "nazwa": "Rekreacja",
+      "ikona": "fa-swimmer",
+      "kolejnosc": 2
+    }
+  },
+  {
+    "model": "atrakcje.kategoriaatrakcji",
+    "pk": 3,
+    "fields": {
+      "nazwa": "Kultura i zabytki",
+      "ikona": "fa-landmark",
+      "kolejnosc": 3
+    }
+  },
+  {
+    "model": "atrakcje.atrakcja",
+    "pk": 1,
+    "fields": {
+      "kategoria": 1,
+      "nazwa": "Szlak na Giewont",
+      "opis": "Jeden z najpopularniejszych szczytów w Tatrach. Trasa prowadzi przez Halę Kondratową i grań Małego Giewontu.",
+      "odleglosc_km": "8.0",
+      "czas_dojazdu_min": 15,
+      "trudnosc": "srednia",
+      "dlugosc_trasy_km": "6.5",
+      "link_zewnetrzny": "",
+      "aktywna": true,
+      "kolejnosc": 1
+    }
+  },
+  {
+    "model": "atrakcje.atrakcja",
+    "pk": 2,
+    "fields": {
+      "kategoria": 2,
+      "nazwa": "Termalne baseny Bukowina",
+      "opis": "Kompleks basenów termalnych z wodą leczniczą, zjeżdżalniami i strefą relaksu. Idealny na rodzinny wypoczynek.",
+      "odleglosc_km": "12.0",
+      "czas_dojazdu_min": 20,
+      "trudnosc": "",
+      "dlugosc_trasy_km": null,
+      "link_zewnetrzny": "",
+      "aktywna": true,
+      "kolejnosc": 1
+    }
+  },
+  {
+    "model": "atrakcje.atrakcja",
+    "pk": 3,
+    "fields": {
+      "kategoria": 1,
+      "nazwa": "Dolina Chochołowska",
+      "opis": "Najdłuższa dolina w polskich Tatrach Zachodnich. Łagodna trasa idealna dla rodzin z dziećmi, szczególnie piękna wiosną.",
+      "odleglosc_km": "18.0",
+      "czas_dojazdu_min": 25,
+      "trudnosc": "latwa",
+      "dlugosc_trasy_km": "18.0",
+      "link_zewnetrzny": "",
+      "aktywna": true,
+      "kolejnosc": 2
+    }
+  },
+  {
+    "model": "atrakcje.atrakcja",
+    "pk": 4,
+    "fields": {
+      "kategoria": 3,
+      "nazwa": "Muzeum Tatrzańskie",
+      "opis": "Muzeum poświęcone historii i kulturze Podhala. Stałe ekspozycje dotyczące przyrody Tatr, tradycji góralskich i folkloru.",
+      "odleglosc_km": "8.0",
+      "czas_dojazdu_min": 15,
+      "trudnosc": "",
+      "dlugosc_trasy_km": null,
+      "link_zewnetrzny": "",
+      "aktywna": true,
+      "kolejnosc": 1
+    }
+  }
+]
