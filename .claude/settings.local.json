@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(ls -la /home/deadly/Sync/projects/freelance/pensjonat/backend/*.py)"
-    ]
-  }
-}
