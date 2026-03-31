@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ─── HOOK: Intersection Observer ───
 function useReveal() {
@@ -43,41 +43,46 @@ function resolveIkona(ikona, nazwaKat) {
   if (n.includes("szlak") || n.includes("treking")) return "⛰️";
   if (n.includes("sport") || n.includes("rekreacja")) return "🏃";
   if (n.includes("basen") || n.includes("term")) return "♨️";
-  if (n.includes("kultura") || n.includes("zabytek") || n.includes("muzeum")) return "🏛️";
+  if (n.includes("kultura") || n.includes("zabytek") || n.includes("muzeum") || n.includes("zamek") || n.includes("fort")) return "🏰";
+  if (n.includes("podziemn") || n.includes("sztolni")) return "🪨";
   if (n.includes("jazda") || n.includes("rower")) return "🚴";
   if (n.includes("narcia") || n.includes("zima")) return "⛷️";
-  if (n.includes("natura") || n.includes("park")) return "🌲";
+  if (n.includes("natura") || n.includes("park") || n.includes("arboret")) return "🌲";
+  if (n.includes("wieża") || n.includes("widok")) return "🗼";
   return "📍";
 }
 
 // ─── DEMO DATA ───
 const DEMO_KATEGORIE = [
   {
-    id: 1, nazwa: "Szlaki piesze", ikona: "fa-hiking", kolejnosc: 1,
+    id: 1, nazwa: "Wieże widokowe", ikona: "fa-mountain", kolejnosc: 1,
     atrakcje: [
-      { id: 1, nazwa: "Szlak na Giewont", opis: "Jeden z najbardziej rozpoznawalnych szczytów Tatr. Trasa wiedzie przez Halę Kondratową, widoki ze szczytu są wyjątkowe.", odleglosc_km: "6.5", czas_dojazdu_min: 15, trudnosc: "srednia", dlugosc_trasy_km: "14.0", link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Szlaki piesze", zdjecia: [] },
-      { id: 2, nazwa: "Dolina Chochołowska", opis: "Najdłuższa dolina w polskich Tatrach. Łatwa trasa wzdłuż potoku, idealna dla rodzin z dziećmi.", odleglosc_km: "18.0", czas_dojazdu_min: 35, trudnosc: "latwa", dlugosc_trasy_km: "9.5", link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Szlaki piesze", zdjecia: [] },
-      { id: 3, nazwa: "Rysy — najwyższy szczyt Polski", opis: "Wymagająca wyprawa na 2499 m n.p.m. Tylko dla doświadczonych piechurów w dobrych warunkach.", odleglosc_km: "22.0", czas_dojazdu_min: 45, trudnosc: "trudna", dlugosc_trasy_km: "22.0", link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Szlaki piesze", zdjecia: [] },
+      { id: 1, nazwa: "Wieża Bismarcka na Wielkiej Sowie", opis: "Zabytkowa wieża widokowa na najwyższym szczycie Gór Sowich (1015 m n.p.m.). Dawniej zwana wieżą Bismarcka — z góry rozciąga się panorama na całe Sudety.", odleglosc_km: "8.0", czas_dojazdu_min: 20, trudnosc: "srednia", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Wieże widokowe", zdjecia: [] },
+      { id: 2, nazwa: "Wieża widokowa na Kalenicy", opis: "Drewniana wieża widokowa na jednym z grzbietów Gór Sowich. Piękne widoki na okoliczne doliny i lasy.", odleglosc_km: "10.0", czas_dojazdu_min: 25, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Wieże widokowe", zdjecia: [] },
     ],
   },
   {
-    id: 2, nazwa: "Rekreacja i sport", ikona: "fa-swimming", kolejnosc: 2,
+    id: 2, nazwa: "Zamki i zabytki", ikona: "fa-museum", kolejnosc: 2,
     atrakcje: [
-      { id: 4, nazwa: "Termalne baseny Bukowina", opis: "Kompleks basenów termalnych z wodą o temperaturze 28-36°C. Idealne miejsce dla całej rodziny przez cały rok.", odleglosc_km: "12.0", czas_dojazdu_min: 20, trudnosc: "", dlugosc_trasy_km: null, link_zewnetrzny: "https://termabukowina.pl", aktywna: true, kategoria_nazwa: "Rekreacja i sport", zdjecia: [] },
-      { id: 5, nazwa: "Wypożyczalnia rowerów górskich", opis: "Szeroki wybór rowerów MTB i e-bike. Mapy tras w cenie wypożyczenia.", odleglosc_km: "2.0", czas_dojazdu_min: 5, trudnosc: "", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Rekreacja i sport", zdjecia: [] },
+      { id: 3, nazwa: "Zamek Grodno i jezioro w Zagórzu Śląskim", opis: "Gotycki zamek nad sztucznym jeziorem z tamą. Jedno z najpiękniejszych miejsc w Sudetach — zwiedzanie wnętrz, widok na zaporę i las.", odleglosc_km: "15.0", czas_dojazdu_min: 25, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Zamki i zabytki", zdjecia: [] },
+      { id: 4, nazwa: "Zamek Książ w Wałbrzychu", opis: "Trzeci co do wielkości zamek w Polsce. Imponująca rezydencja z tarasami ogrodowymi, labiryntem podziemnych korytarzy i bogatą historią.", odleglosc_km: "35.0", czas_dojazdu_min: 45, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Zamki i zabytki", zdjecia: [] },
+      { id: 5, nazwa: "Forty w Srebrnej Górze", opis: "XVIII-wieczna twierdza pruska — jeden z najlepiej zachowanych obiektów fortyfikacyjnych w Europie. Zwiedzanie fortów, bastionu i podziemnych korytarzy.", odleglosc_km: "18.0", czas_dojazdu_min: 30, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Zamki i zabytki", zdjecia: [] },
+      { id: 6, nazwa: "Krzywa Wieża w Ząbkowicach Śląskich", opis: "Gotycka wieża z XIV w. nachylona pod kątem 2,14 m od pionu — więcej niż słynna wieża w Pizie. Wejście na szczyt i widok na stare miasto.", odleglosc_km: "22.0", czas_dojazdu_min: 30, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Zamki i zabytki", zdjecia: [] },
     ],
   },
   {
-    id: 3, nazwa: "Kultura i zabytki", ikona: "fa-museum", kolejnosc: 3,
+    id: 3, nazwa: "Atrakcje podziemne", ikona: "fa-camera", kolejnosc: 3,
     atrakcje: [
-      { id: 6, nazwa: "Muzeum Tatrzańskie w Zakopanem", opis: "Największe muzeum regionalne w Tatrach. Ekspozycje poświęcone kulturze i przyrodzie Podhala.", odleglosc_km: "8.0", czas_dojazdu_min: 15, trudnosc: "", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Kultura i zabytki", zdjecia: [] },
-      { id: 7, nazwa: "Stara Polana — osada góralska", opis: "Zabytkowa osada z chatami krytymi słomą. Pokazy wyrobu oscypka, regionalne rzemiosło.", odleglosc_km: "5.0", czas_dojazdu_min: 10, trudnosc: "", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Kultura i zabytki", zdjecia: [] },
+      { id: 7, nazwa: "Sztolnie w Walimiu i Osówce", opis: "Tajemnicze podziemia hitlerowskiego projektu Riese — gigantyczne tunele wykute w skale podczas II wojny światowej. Zwiedzanie z przewodnikiem.", odleglosc_km: "20.0", czas_dojazdu_min: 30, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Atrakcje podziemne", zdjecia: [] },
+      { id: 8, nazwa: "Kompleks Włodarz", opis: "Trzecia część podziemnego kompleksu Riese — mniej znana, ale równie imponująca. Rozległa sieć korytarzy w sercu Gór Sowich.", odleglosc_km: "22.0", czas_dojazdu_min: 35, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Atrakcje podziemne", zdjecia: [] },
     ],
   },
   {
-    id: 4, nazwa: "Narty i sporty zimowe", ikona: "fa-skiing", kolejnosc: 4,
+    id: 4, nazwa: "Natura i parki", ikona: "fa-tree", kolejnosc: 4,
     atrakcje: [
-      { id: 8, nazwa: "Stok narciarski Kotelnica", opis: "10 tras zjazdowych o różnym stopniu trudności. Nowoczesne ośnieżanie, 5 wyciągów krzesełkowych.", odleglosc_km: "7.0", czas_dojazdu_min: 12, trudnosc: "srednia", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Narty i sporty zimowe", zdjecia: [] },
+      { id: 9, nazwa: "Park Krajobrazowy Gór Sowich", opis: "Bogata fauna i flora sudecka — w tym unikalne na skalę krajową stada muflonów. Piękne szlaki piesze i rowerowe przez lasy i grzbiety górskie.", odleglosc_km: "2.0", czas_dojazdu_min: 5, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Natura i parki", zdjecia: [] },
+      { id: 10, nazwa: "Arboretum w Wojsławicach", opis: "Jeden z najpiękniejszych ogrodów dendrologicznych w Polsce. Kolekcja ponad 4000 gatunków roślin, słynne w maju kwitnienie różaneczników.", odleglosc_km: "28.0", czas_dojazdu_min: 35, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Natura i parki", zdjecia: [] },
+      { id: 11, nazwa: "Palmiarnia w Wałbrzychu", opis: "Jedna z największych palmiarni w Polsce. Egzotyczne rośliny, papugi i tropikalna atmosfera — atrakcja idealna przy każdej pogodzie.", odleglosc_km: "33.0", czas_dojazdu_min: 40, trudnosc: "latwa", dlugosc_trasy_km: null, link_zewnetrzny: "", aktywna: true, kategoria_nazwa: "Natura i parki", zdjecia: [] },
     ],
   },
 ];
@@ -92,14 +97,14 @@ function HeroSection() {
       <div className="hero-bg" />
       <div className="hero-overlay" />
       <div className={`hero-content ${loaded ? "hero-content--in" : ""}`}>
-        <p className="eyebrow">Szlaki · Rekreacja · Kultura</p>
+        <p className="eyebrow">Góry Sowie · Sudety · Okolica</p>
         <h1 className="hero-title">
           Odkryj<br />
           <em>okolice</em>
         </h1>
         <p className="hero-sub">
-          Tatry, Beskidy i Podhale — w zasięgu krótkiej drogi.
-          Szlaki dla każdego, termy, zabytki i sport przez cały rok.
+          Zamki, sztolnie, wieże widokowe i szlaki przez Góry Sowie —
+          wszystko w zasięgu krótkiej drogi od pensjonatu.
         </p>
         <div className="hero-btns">
           <a href="#atrakcje" className="btn-primary">Zobacz atrakcje</a>
@@ -257,10 +262,10 @@ function StatSection() {
   const [ref, visible] = useReveal();
 
   const stats = [
-    { value: "2499", unit: "m n.p.m.", label: "Najwyższy dostępny szczyt" },
-    { value: "15+",  unit: "szlaków",  label: "Pieszych w okolicy" },
-    { value: "12",   unit: "km",       label: "Do basenów termalnych" },
-    { value: "365",  unit: "dni",      label: "Atrakcji przez cały rok" },
+    { value: "1015",    unit: "m n.p.m.",   label: "Wielka Sowa — najwyższy szczyt Gór Sowich" },
+    { value: "kilka",   unit: "szlaków",     label: "Górskich w bezpośredniej okolicy" },
+    { value: "35",      unit: "km",          label: "Do Zamku Książ w Wałbrzychu" },
+    { value: "365",     unit: "dni",         label: "Atrakcji przez cały rok" },
   ];
 
   return (

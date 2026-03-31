@@ -22,6 +22,6 @@ urlpatterns = [
     path('manage/sezony/<int:pk>/', views.SezonCenowyDetailView.as_view(), name='sezony-detail'),
     path('manage/imprezy/', views.ImprezaManageView.as_view(), name='imprezy-manage'),
     path('manage/imprezy/<int:pk>/', views.ImprezaDetailView.as_view(), name='imprezy-detail'),
-    path('manage/cenny/', views.CenaPokojuManageView.as_view(), name='ceny-manage'),
+    path('manage/ceny/', views.CenaPokojuManageView.as_view(), name='ceny-manage'),
     path('manage/ceny/<int:pk>/', views.CenaPokojuDetailView.as_view(), name = 'ceny-detail'),
 ]

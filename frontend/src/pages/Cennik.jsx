@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ─── HOOK: Intersection Observer ───
 function useReveal() {
@@ -82,10 +82,10 @@ const DEMO_SEZONY = [
 // ─── PAGE HEADER ───
 function PageHeader() {
   return (
-    <div className="page-header">
+    <div className="page-header" style={{ scrollSnapAlign: 'start' }}>
       <div className="page-header__inner">
         <div className="page-header__label">Noclegi</div>
-        <h1 className="page-header__title">Cennik<br /><em>pokojów</em></h1>
+        <h1 className="page-header__title">Cennik<br /><em>pokoi</em></h1>
         <p className="page-header__sub">
           Ceny za pokój za dobę, śniadanie wliczone. Bez ukrytych opłat.
         </p>
@@ -129,7 +129,7 @@ function CennikSection() {
   };
 
   return (
-    <section className="cennik-section" ref={ref}>
+    <section className="cennik-section" ref={ref} style={{ scrollSnapAlign: 'start' }}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
         <div className="cennik-header">
           <div>
@@ -252,8 +252,7 @@ function CennikSection() {
             </div>
 
             <p className="cennik-uwaga">
-              * Ceny za pokój za dobę. Dzieci do 3 lat gratis, 4–12 lat — 50% ceny.
-              Przy pobycie 7+ nocy — 10% rabatu. Ceny mogą ulec zmianie.
+              * Ceny za pokój za dobę. Ceny mogą ulec zmianie.
             </p>
           </>
         )}
@@ -267,16 +266,16 @@ function InfoSection() {
   const [ref, visible] = useReveal();
 
   const items = [
-    { ikona: "🍳", tytul: "Śniadania",    opis: "Codziennie 7:30–10:00. Bufet z regionalnych produktów — domowe wędliny, oscypek, świeże pieczywo." },
-    { ikona: "🅿️", tytul: "Parking",      opis: "Bezpłatny parking strzeżony na terenie pensjonatu. Miejsca dla wszystkich gości." },
-    { ikona: "🐾", tytul: "Zwierzęta",    opis: "Przyjazny dla zwierząt — psy mile widziane za dodatkową opłatą 30 zł/noc." },
-    { ikona: "📅", tytul: "Rezerwacja",   opis: "Rezerwacja telefonicznie lub mailowo. Zaliczka 30% przy rezerwacji, reszta przy zameldowaniu." },
-    { ikona: "↩️", tytul: "Anulacja",     opis: "Bezpłatna anulacja do 7 dni przed przyjazdem. Późniejsza anulacja — utrata zaliczki." },
-    { ikona: "🕐", tytul: "Zameldowanie", opis: "Check-in od 14:00, check-out do 11:00. Możliwość późniejszego wymeldowania po uzgodnieniu." },
+    { ikona: "🍳", tytul: "Śniadania",    opis: "Codziennie. Bufet z regionalnych produktów, wliczone w cene noclegu." },
+    { ikona: "🅿️", tytul: "Parking",      opis: "Bezpłatny parking na terenie pensjonatu. Miejsca dla wszystkich gości." },
+    { ikona: "🐾", tytul: "Zwierzęta",    opis: "Przyjazny dla zwierząt - zapytaj przy rejestracji wizyty." },
+    { ikona: "📅", tytul: "Rezerwacja",   opis: "Rezerwacja telefonicznie lub mailowo. Zapraszamy do kontaktu przez formularz" },
+    { ikona: "↩️", tytul: "Anulacja",     opis: "Zasady dotyczące przedpłaty i odwoływania rezerwacji różnią się w zależności od rodzaju zakwaterowania." },
+    { ikona: "🕐", tytul: "Zameldowanie", opis: "Check-in od 14:00, check-out do 12:00. Możliwość późniejszego wymeldowania po uzgodnieniu." },
   ];
 
   return (
-    <section className="info-section" ref={ref}>
+    <section className="info-section" ref={ref} style={{ scrollSnapAlign: 'start' }}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
         <div className="section-label">Zasady pobytu</div>
         <h2 className="section-title section-title--light">Co warto<br /><em>wiedzieć</em></h2>
@@ -300,7 +299,7 @@ function InfoSection() {
 function CTASection() {
   const [ref, visible] = useReveal();
   return (
-    <section className="cta-section" ref={ref}>
+    <section className="cta-section" ref={ref} style={{ scrollSnapAlign: 'start' }}>
       <div className={`section-inner cta-inner ${visible ? "reveal-in" : ""}`}>
         <p className="eyebrow eyebrow--amber">Rezerwacje</p>
         <h2 className="section-title section-title--light">
@@ -327,6 +326,9 @@ export default function Cennik() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* Wyłącz snap scroll ustawiony globalnie przez Home.jsx */
+        html { scroll-snap-type: y mandatory !important; }
 
         :root {
           --olive:       #4a5240;

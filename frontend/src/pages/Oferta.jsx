@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ─── HOOK: Intersection Observer do animacji wejścia ───
 function useReveal() {
@@ -34,8 +34,8 @@ function HeroSection() {
           <em>w górach</em>
         </h1>
         <p className="hero-sub">
-          Przytulne pokoje z widokiem na góry, drewniane wykończenia
-          i cisza, której szukasz — to nasz standard.
+          Przytulne pokoje z widokiem na góry
+          i cisza, której szukasz - to nasz standard.
         </p>
         <div className="hero-btns">
           <a href="#pokoje" className="btn-primary">Zobacz pokoje</a>
@@ -125,8 +125,8 @@ function PokojeSections() {
           <div className="section-label">Noclegi</div>
           <h2 className="section-title">Nasze<br /><em>pokoje</em></h2>
           <p className="section-desc">
-            Każdy pokój to osobna historia — drewno, kamień i góry za oknem.
-            Wybierz swoje miejsce odpoczynku.
+           Miejsca noclegowe w pokojach 2, 3 i 4 osobowych oraz apartamentach. 
+	   Każdy pokój z telewizorem, łazienką i telefonem.
           </p>
         </div>
 
@@ -266,7 +266,7 @@ function ImprezaSection() {
               Imprezy<br /><em>okolicznościowe</em>
             </h2>
             <p className="section-desc" style={{ color: "rgba(255,255,255,.55)" }}>
-              Wesela, urodziny, integracje firmowe — organizujemy
+              Wesela, urodziny, integracje firmowe organizujemy
               każde wydarzenie w pięknym górskim otoczeniu.
             </p>
             <a href="/kontakt" className="btn-primary btn-primary--sm" style={{ marginTop: "1.5rem", display: "inline-block" }}>
@@ -311,7 +311,7 @@ function CTASection() {
           Gotowy na<br /><em>górski wypoczynek?</em>
         </h2>
         <p className="cta-sub">
-          Skontaktuj się z nami — dobierzemy pokój idealny dla Ciebie
+          Skontaktuj się z nami, dobierzemy pokój idealny dla Ciebie
           i sprawdzimy dostępność w wybranym terminie.
         </p>
         <div className="hero-btns" style={{ marginTop: "2.5rem" }}>

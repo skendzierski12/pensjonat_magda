@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 const FALLBACK_TYTUL = "Kilka słów o nas";
 const FALLBACK_TRESC = `W sercu Gór Sowich, w uroczej, małej miejscowości Lasocin położony jest Pensjonat „Magda". Wiedzie od niego najkrótszy szlak na Wielką Sowę - najwyższy szczyt Gór Sowich (1015 m n.p.m.). Pasmo to należy do najstarszych (obok Świętokrzyskich) gór w Polsce. Rozciąga się od doliny rzeki Bystrzycy z zamkiem GRODNO i Jeziorem Bystrzyckim w pn.-zach. części po przełęcz Srebrną ze srebrnogórskimi fortyfikacjami na pd.-wsch. Całe pasmo ma ok. 25km długości.

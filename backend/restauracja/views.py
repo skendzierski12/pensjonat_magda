@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from django.db.models import ProtectedError
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 )
@@ -41,6 +42,14 @@ class KategoriaMenuManageView(ListCreateAPIView):
 class KategoriaMenuDetailView(RetrieveUpdateDestroyAPIView):
     queryset = KategoriaMenu.objects.all()
     serializer_class = KategoriaMenuSerializer
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError:
+            raise ValidationError(
+                "Nie można usunąć typu pokoju — istnieją przypisane do niego pokoje."
+            )
 
 
 class DanieListView(ListAPIView):
@@ -89,6 +98,22 @@ class KategoriaWyrobuListView(ListAPIView):
     queryset = KategoriaWyrobu.objects.all()
     serializer_class = KategoriaWyrobuSerializer
     permission_classes = [AllowAny]
+
+class KategoriaWyrobuManageView(ListCreateAPIView):
+    queryset = KategoriaWyrobu.objects.all()
+    serializer_class = KategoriaWyrobuSerializer
+
+class KategoriaWyrobuDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = KategoriaWyrobu.objects.all()
+    serializer_class = KategoriaWyrobuSerializer
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError:
+            raise ValidationError(
+                "Nie można usunąć kategorii — istnieją przypisane do niej wyroby."
+            )
 
 
 class WyrobListView(ListAPIView):

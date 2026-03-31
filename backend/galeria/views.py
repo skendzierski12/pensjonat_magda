@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from django.db.models import ProtectedError
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 )
@@ -24,6 +25,16 @@ class SekcjaGaleriiManageView(ListCreateAPIView):
 class SekcjaGaleriiDetailView(RetrieveUpdateDestroyAPIView):
     queryset = SekcjaGalerii.objects.all()
     serializer_class = SekcjaGaleriiSerializer
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError:
+            raise ValidationError(
+                "Nie można usunąć kategorii — istnieją przypisane do niej atrakcje."
+            )
+
+
 
 
 class ZdjecieListView(ListAPIView):

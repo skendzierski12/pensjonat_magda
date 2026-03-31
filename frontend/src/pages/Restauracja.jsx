@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ─── HOOK: Intersection Observer ───
 function useReveal() {
@@ -35,7 +35,7 @@ function HeroSection() {
         </h1>
         <p className="hero-sub">
           Gotujemy z lokalnych produktów, według starych receptur.
-          Żurek, pierogi, pstrąg — tak jak robiła to babcia.
+	  Tak jak robiła to babcia.
         </p>
         <div className="hero-btns">
           <a href="#menu" className="btn-primary">Zobacz menu</a>

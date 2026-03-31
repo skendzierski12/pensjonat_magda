@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 const getHeaders = () => ({
   Authorization: `Token ${localStorage.getItem("token")}`,
@@ -109,7 +109,7 @@ export default function PanelUstawienia() {
           ) : !form ? (
             <div className="empty-state">
               <span className="empty-state__ikona">⚙️</span>
-              <p>Brak ustawień. Utwórz rekord w <a href="http://localhost:8000/admin" target="_blank" rel="noreferrer">Django Admin</a>.</p>
+              <p>Brak ustawień. Utwórz rekord w <a href="http://neil193.mikrus.xyz:8000/admin" target="_blank" rel="noreferrer">Django Admin</a>.</p>
             </div>
           ) : (
             <div className="sekcje">

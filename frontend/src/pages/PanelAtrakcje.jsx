@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 const getHeaders = () => ({
   Authorization: `Token ${localStorage.getItem("token")}`,
@@ -309,7 +309,7 @@ export default function PanelAtrakcje() {
           )}
 
           <div className="admin-hint">
-            💡 Zarządzanie <strong>kategoriami atrakcji</strong> dostępne jest w <a href="http://localhost:8000/admin" target="_blank" rel="noreferrer">Django Admin</a>.
+            💡 Zarządzanie <strong>kategoriami atrakcji</strong> dostępne jest w <a href="http://neil193.mikrus.xyz:8000/admin" target="_blank" rel="noreferrer">Django Admin</a>.
           </div>
         </main>
       </div>

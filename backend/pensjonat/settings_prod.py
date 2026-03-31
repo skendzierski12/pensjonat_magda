@@ -1,19 +1,16 @@
-# backend/pensjonat/settings_prod.py
-# Użycie: DJANGO_SETTINGS_MODULE=pensjonat.settings_prod
-
 from pathlib import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── BEZPIECZEŃSTWO ─────────────────────────────────────
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]   # wymagane — brak = crash przy starcie
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]   
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    os.environ.get("DOMAIN", ""),          # np. pensjonat-magda.pl
-    os.environ.get("MIKRUS_HOST", ""),     # np. adam100-8000.mikrus.cloud
-]
+    os.environ.get("DOMAIN", ""),          
+    os.environ.get("MIKRUS_HOST", ""),         
+    ]
 
 # ── APLIKACJE ──────────────────────────────────────────
 INSTALLED_APPS = [
@@ -49,6 +46,13 @@ CORS_ALLOWED_ORIGINS = [
     f"https://{os.environ.get('DOMAIN', '')}",
     f"https://www.{os.environ.get('DOMAIN', '')}",
     f"https://{os.environ.get('MIKRUS_HOST', '')}",
+    "http://neil193.mikrus.xyz:20193",
+    "http://neil193.mikrus.xyz:8000",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://neil193.mikrus.xyz:20193",
+    "http://neil193.mikrus.xyz:8000",
 ]
 
 # ── BAZA DANYCH ────────────────────────────────────────
@@ -69,6 +73,9 @@ DATABASES = {
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST':     os.environ.get('DB_HOST', 'localhost'),
             'PORT':     os.environ.get('DB_PORT', '5432'),
+            'TEST': {
+                'NAME': 'pensjonat_test',
+                }
             }
 }
 
@@ -123,5 +130,5 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # ── BEZPIECZEŃSTWO HTTPS ───────────────────────────────
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False

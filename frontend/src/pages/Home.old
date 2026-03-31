@@ -1,7 +1,9 @@
 import WeatherWidget from '../components/WeatherWidget';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+
 const API = import.meta.env.VITE_API_URL;
+
 // ─── HOOK: Intersection Observer do animacji wejścia ───
 function useReveal() {
   const ref = useRef(null);
@@ -16,14 +18,17 @@ function useReveal() {
   }, []);
   return [ref, visible];
 }
+
 // ─── SEKCJA HERO ───  
 function HeroSection() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => { setTimeout(() => setLoaded(true), 100); }, []);
+
   return (
     <section className="snap-section hero-section">
       <div className="hero-bg" />
       <div className="hero-overlay" />
+
       <div className={`hero-content ${loaded ? "hero-content--in" : ""}`}>
         <p className="eyebrow">Góry Sowie · Sudety · Spokój</p>
         <h1 className="hero-title">
@@ -39,6 +44,7 @@ function HeroSection() {
           <a href="/galeria" className="btn-ghost">Galeria</a>
         </div>
       </div>
+
       <div className="scroll-hint">
         <div className="scroll-line" />
         <span>Przewiń</span>
@@ -46,37 +52,33 @@ function HeroSection() {
     </section>
   );
 }
+
 // ─── SEKCJA OGŁOSZENIA ───
 function OgloszeniaSection() {
   const [ref, visible] = useReveal();
   const [ogloszenia, setOgloszenia] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [brakDanych, setBrakDanych] = useState(false);
+
   useEffect(() => {
     axios.get(`${API}/core/ogloszenia/`)
-      .then(r => {
-        if (r.data.length === 0) {
-          setBrakDanych(true);
-        } else {
-          setOgloszenia(r.data.slice(0, 3));
-        }
-      })
-      .catch(() => setBrakDanych(true))
+      .then(r => setOgloszenia(r.data.slice(0, 3)))
+      .catch(() => setOgloszenia([
+        { id: 1, tytul: "Witamy w sezonie letnim 2025!", tresc: "Otwarcie pensjonatu od 1 czerwca. Zapraszamy na wypoczynek w pięknych górach.", data_dodania: "2025-05-20" },
+        { id: 2, tytul: "Nowość: pakiet weekendowy", tresc: "Specjalna oferta na weekendy — 2 noce + śniadanie + kolacja regionalna w cenie.", data_dodania: "2025-05-15" },
+        { id: 3, tytul: "Szlak Orła Białego otwarty", tresc: "Trasy piesze w okolicy dostępne od maja. Wypożyczamy kijki turystyczne bezpłatnie.", data_dodania: "2025-05-10" },
+      ]))
       .finally(() => setLoading(false));
   }, []);
+
   return (
     <section className="snap-section ogloszenia-section" ref={ref}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
         <div className="section-label">Aktualności</div>
         <h2 className="section-title">Co słychać<br /><em>u Magdy</em></h2>
+
         {loading ? (
           <div className="skeleton-grid">
             {[1,2,3].map(i => <div key={i} className="skeleton-card" />)}
-          </div>
-        ) : brakDanych ? (
-          <div className="brak-danych">
-            <span className="brak-danych__icon">📋</span>
-            <p>W tym momencie brak aktualności.</p>
           </div>
         ) : (
           <div className="cards-grid">
@@ -95,36 +97,24 @@ function OgloszeniaSection() {
     </section>
   );
 }
+
 // ─── SEKCJA POKOJE ───
 function PokojeSections() {
   const [ref, visible] = useReveal();
   const [pokoje, setPokoje] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     axios.get(`${API}/oferta/typy-pokoi/`)
       .then(r => setPokoje(r.data.slice(0, 3)))
       .catch(() => setPokoje([
-        {
-          id: 1,
-          nazwa: "Apartamenty 3-osobowe",
-          opis: "4 apartamenty dwupokojowe z łazienką. Telewizor, bezpośrednie połączenie telefoniczne. Cena od 65 zł/os./dobę ze śniadaniem.",
-          liczba_osob: 3,
-        },
-        {
-          id: 2,
-          nazwa: "Pokoje 2 i 3-osobowe",
-          opis: "52 pokoje dwuosobowe i 8 pokoi trzyosobowych z łazienką, telewizorem i telefonem. Cena od 65 zł/os./dobę ze śniadaniem.",
-          liczba_osob: 3,
-        },
-        {
-          id: 3,
-          nazwa: "Pokoje 4-osobowe",
-          opis: "2 pokoje czteroosobowe z pełnym wyposażeniem. Telewizor, łazienka, telefon. Cena od 65 zł/os./dobę ze śniadaniem.",
-          liczba_osob: 4,
-        },
+        { id: 1, nazwa: "Pokój Dwuosobowy", opis: "Przytulny pokój z widokiem na dolinę, własna łazienka, balkon z leżakami.", liczba_osob: 2 },
+        { id: 2, nazwa: "Apartament Rodzinny", opis: "Przestronny apartament dla 4 osób — dwa pokoje, aneks kuchenny, taras.", liczba_osob: 4 },
+        { id: 3, nazwa: "Pokój Górski", opis: "Panoramiczny widok na Tatry, kominek, drewniane wykończenia premium.", liczba_osob: 2 },
       ]))
       .finally(() => setLoading(false));
   }, []);
+
   return (
     <section className="snap-section pokoje-section" ref={ref}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
@@ -135,11 +125,12 @@ function PokojeSections() {
               Pokoje<br /><em>i apartamenty</em>
             </h2>
             <p className="section-desc">
-              Miejsca noclegowe w pokojach 2, 3 i 4 osobowych oraz apartamentach.
-              Każdy pokój z telewizorem, łazienką i telefonem.
+              Komfortowe wnętrza z panoramą Gór Sowich za oknem. 
+	      Bliskość szlaków i cisza, która pozwala realnie odciąć się od miasta.              
             </p>
             <a href="/oferta" className="btn-primary btn-primary--sm">Zobacz wszystkie</a>
           </div>
+
           <div className="pokoje-cards">
             {loading ? (
               [1,2,3].map(i => <div key={i} className="skeleton-card skeleton-card--dark" />)
@@ -164,27 +155,31 @@ function PokojeSections() {
     </section>
   );
 }
+
 // ─── SEKCJA RESTAURACJA ───
 function RestauracjaSection() {
   const [ref, visible] = useReveal();
   const [dania, setDania] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     axios.get(`${API}/restauracja/dania/`)
       .then(r => setDania(r.data.slice(0, 4)))
       .catch(() => setDania([
-        { id: 1, nazwa: "Szaszłyk z dzika", kategoria_nazwa: "Specjalności", cena: "0" },
-        { id: 2, nazwa: "Świeży pstrąg z łowiska", kategoria_nazwa: "Specjalności", cena: "0" },
-        { id: 3, nazwa: "Potrawy z dziczyzny", kategoria_nazwa: "Dania główne", cena: "0" },
-        { id: 4, nazwa: "Potrawy regionalne", kategoria_nazwa: "Kuchnia regionalna", cena: "0" },
+        { id: 1, nazwa: "Żurek góralski", kategoria_nazwa: "Zupy", cena: "18.00" },
+        { id: 2, nazwa: "Pierogi z owczym serem", kategoria_nazwa: "Dania główne", cena: "28.00" },
+        { id: 3, nazwa: "Pstrąg z Dunajca", kategoria_nazwa: "Dania główne", cena: "45.00" },
+        { id: 4, nazwa: "Oscypek z borówkami", kategoria_nazwa: "Przystawki", cena: "22.00" },
       ]))
       .finally(() => setLoading(false));
   }, []);
+
   return (
     <section className="snap-section restauracja-section" ref={ref}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
         <div className="section-label">Smaki</div>
         <h2 className="section-title">Nasza<br /><em>kuchnia</em></h2>
+
         <div className="menu-grid">
           {loading ? (
             [1,2,3,4].map(i => <div key={i} className="skeleton-card skeleton-card--menu" />)
@@ -195,47 +190,47 @@ function RestauracjaSection() {
                   <span className="menu-item__cat">{d.kategoria_nazwa}</span>
                   <span className="menu-item__name">{d.nazwa}</span>
                 </div>
-                {parseFloat(d.cena) > 0 && (
-                  <span className="menu-item__price">{parseFloat(d.cena).toFixed(0)} zł</span>
-                )}
+                <span className="menu-item__price">{parseFloat(d.cena).toFixed(0)} zł</span>
               </div>
             ))
           )}
         </div>
+
         <div className="restauracja-footer">
-          <p>Kuchnia regionalna · Dziczyzna · Pstrąg z Łowiska</p>
+          <p>Kuchnia otwarta codziennie 8:00 — 21:00</p>
           <a href="/restauracja" className="btn-ghost btn-ghost--sm">Pełne menu</a>
         </div>
       </div>
     </section>
   );
 }
+
 // ─── SEKCJA ATRAKCJE ───
 function AtrakcjeSection() {
   const [ref, visible] = useReveal();
   const [atrakcje, setAtrakcje] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     axios.get(`${API}/atrakcje/lista/`)
       .then(r => setAtrakcje(r.data.slice(0, 4)))
       .catch(() => setAtrakcje([
-        { id: 1, nazwa: "Zabytkowa wieża Bismarcka na Wielkiej Sowie", kategoria_nazwa: "Wieże widokowe", odleglosc_km: "8", trudnosc: "srednia" },
-        { id: 2, nazwa: "Zamek Grodno i jezioro w Zagórzu Śląskim", kategoria_nazwa: "Zamki i zabytki", odleglosc_km: "15", trudnosc: "latwa" },
-        { id: 3, nazwa: "Sztolnie podziemnej fabryki — Walim, Osówka, Włodarz", kategoria_nazwa: "Atrakcje podziemne", odleglosc_km: "20", trudnosc: "latwa" },
-        { id: 4, nazwa: "Forty w Srebrnej Górze", kategoria_nazwa: "Zamki i zabytki", odleglosc_km: "18", trudnosc: "latwa" },
+        { id: 1, nazwa: "Szlak na Giewont", kategoria_nazwa: "Szlaki", odleglosc_km: "6.5", trudnosc: "srednia" },
+        { id: 2, nazwa: "Termalne baseny Bukowina", kategoria_nazwa: "Rekreacja", odleglosc_km: "12", trudnosc: "latwa" },
+        { id: 3, nazwa: "Dolina Chochołowska", kategoria_nazwa: "Szlaki", odleglosc_km: "18", trudnosc: "latwa" },
+        { id: 4, nazwa: "Muzeum Tatrzańskie", kategoria_nazwa: "Kultura", odleglosc_km: "8", trudnosc: "latwa" },
       ]))
       .finally(() => setLoading(false));
   }, []);
+
   const ikonka = (kategoriaNazwa) => {
     const k = (kategoriaNazwa || "").toLowerCase();
     if (k.includes("szlak")) return "⛰️";
-    if (k.includes("podziemn") || k.includes("sztolni")) return "🪨";
-    if (k.includes("zamek") || k.includes("zabytek") || k.includes("forty") || k.includes("fort")) return "🏰";
     if (k.includes("rekreacja") || k.includes("basen")) return "🏊";
     if (k.includes("kultura") || k.includes("muzeum")) return "🏛️";
-    if (k.includes("wieża") || k.includes("widok")) return "🗼";
     return "📍";
   };
+
   return (
     <section className="snap-section atrakcje-section" ref={ref}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
@@ -259,14 +254,15 @@ function AtrakcjeSection() {
               ))
             )}
           </div>
+
           <div className="atrakcje-header">
             <div className="section-label">Okolica</div>
             <h2 className="section-title section-title--light">
               Co robić<br /><em>w pobliżu</em>
             </h2>
             <p className="section-desc">
-              Zamki, wieże widokowe, tajemnicze sztolnie i piękne szlaki -
-              Góry Sowie i Sudety kryją niezliczone atrakcje w zasięgu krótkiej drogi.
+              Góry, szlaki, termy i kultura - wszystko w zasięgu krótkiej
+              drogi od naszego pensjonatu.
             </p>
             <a href="/atrakcje" className="btn-primary btn-primary--sm">Mapa atrakcji</a>
           </div>
@@ -275,12 +271,15 @@ function AtrakcjeSection() {
     </section>
   );
 }
+
 // ─── SEKCJA KONTAKT ───
 function KontaktSection() {
   const [ref, visible] = useReveal();
   const [form, setForm] = useState({ imie: "", email: "", wiadomosc: "" });
   const [status, setStatus] = useState(null); // null | 'sending' | 'ok' | 'err'
+
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
   const handleSubmit = async e => {
     e.preventDefault();
     setStatus("sending");
@@ -293,6 +292,7 @@ function KontaktSection() {
       setStatus("ok");
     }
   };
+
   return (
     <section className="snap-section kontakt-section" ref={ref}>
       <div className={`section-inner ${visible ? "reveal-in" : ""}`}>
@@ -302,19 +302,20 @@ function KontaktSection() {
             <h2 className="section-title section-title--light">
               Napisz<br /><em>do nas</em>
             </h2>
+
             <div className="kontakt-details">
               <div className="kontakt-item">
                 <span className="kontakt-item__icon">📞</span>
                 <div>
                   <p className="kontakt-item__label">Telefon</p>
-                  <a href="tel:+48748369928" className="kontakt-item__val">+48 74 83 69 928, +48 74 83 69 930, +48 74 83 69 931</a>
+                  <a href="tel:+48123456789" className="kontakt-item__val">+48 74 83 69 928, +48 74 83 69 930, +48 74 83 69 931</a>
                 </div>
               </div>
               <div className="kontakt-item">
                 <span className="kontakt-item__icon">✉️</span>
                 <div>
                   <p className="kontakt-item__label">E-mail</p>
-                  <a href="mailto:pensjonat@magda.com.pl" className="kontakt-item__val">pensjonat@magda.com.pl</a>
+                  <a href="mailto:magda@pensjonat.pl" className="kontakt-item__val">pensjonat@magda.com.pl</a>
                 </div>
               </div>
               <div className="kontakt-item">
@@ -326,6 +327,7 @@ function KontaktSection() {
               </div>
             </div>
           </div>
+
           <div className="kontakt-form-wrap">
             {status === "ok" ? (
               <div className="form-success">
@@ -387,13 +389,16 @@ function KontaktSection() {
     </section>
   );
 }
+
 // ─── MAIN HOME ───
 export default function Home() {
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
           --olive:      #4a5240;
           --olive-dark: #2e3328;
@@ -405,12 +410,14 @@ export default function Home() {
           --cream-dark: #ede7d8;
           --white:      #ffffff;
         }
+
         html {
           scroll-snap-type: y proximity;
           overflow-y: scroll;
           height: 100%;
         }
         body { height: 100%; font-family: 'DM Sans', sans-serif; }
+
         /* ══ SNAP SECTIONS ══ */
         .snap-section {
           scroll-snap-align: start;
@@ -421,6 +428,7 @@ export default function Home() {
           position: relative;
           overflow: hidden;
         }
+
         .section-inner {
           width: 100%;
           max-width: 1200px;
@@ -434,6 +442,7 @@ export default function Home() {
           opacity: 1;
           transform: translateY(0);
         }
+
         /* ══ TYPOGRAPHY SYSTEM ══ */
         .section-label {
           font-family: 'DM Sans', sans-serif;
@@ -444,6 +453,7 @@ export default function Home() {
           color: var(--amber);
           margin-bottom: 1rem;
         }
+
         .section-title {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
@@ -454,6 +464,7 @@ export default function Home() {
         }
         .section-title em { font-style: italic; color: var(--amber); }
         .section-title--light { color: var(--white); }
+
         .section-desc {
           font-family: 'DM Sans', sans-serif;
           font-weight: 300;
@@ -463,6 +474,7 @@ export default function Home() {
           margin-bottom: 2rem;
           max-width: 340px;
         }
+
         .eyebrow {
           font-family: 'DM Sans', sans-serif;
           font-size: .68rem;
@@ -471,6 +483,7 @@ export default function Home() {
           color: var(--amber);
           margin-bottom: 1.5rem;
         }
+
         /* ══ BUTTONS ══ */
         .btn-primary {
           display: inline-block;
@@ -491,6 +504,7 @@ export default function Home() {
         .btn-primary:hover { background: var(--amber-light); transform: translateY(-2px); }
         .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
         .btn-primary--sm { padding: .7rem 1.6rem; font-size: .72rem; }
+
         .btn-ghost {
           display: inline-block;
           font-family: 'DM Sans', sans-serif;
@@ -509,6 +523,7 @@ export default function Home() {
         }
         .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
         .btn-ghost--sm { padding: .7rem 1.6rem; font-size: .72rem; }
+
         /* ══ SKELETON ══ */
         @keyframes shimmer {
           0% { background-position: -400px 0; }
@@ -527,27 +542,12 @@ export default function Home() {
         }
         .skeleton-card--menu { height: 60px; }
         .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-        /* ══ BRAK DANYCH ══ */
-        .brak-danych {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-          padding: 3rem 2rem;
-          color: var(--olive-light);
-          text-align: center;
-        }
-        .brak-danych__icon { font-size: 2rem; opacity: .5; }
-        .brak-danych p {
-          font-family: 'DM Sans', sans-serif;
-          font-size: .9rem;
-          font-weight: 300;
-          font-style: italic;
-        }
+
         /* ══════════════════════════════
            1. HERO
         ══════════════════════════════ */
         .hero-section { color: var(--white); }
+
         .hero-bg {
           position: absolute; inset: 0;
           background: url('/home_background.png') center center / cover no-repeat;
@@ -556,6 +556,7 @@ export default function Home() {
           transition: transform 8s ease;
         }
         .hero-section:hover .hero-bg { transform: scale(1); }
+
         .hero-overlay {
           position: absolute; inset: 0;
           background: linear-gradient(
@@ -565,6 +566,7 @@ export default function Home() {
             rgba(20,24,16,.65) 100%
           );
         }
+
         .hero-content {
           position: relative; z-index: 1;
           text-align: center;
@@ -575,6 +577,7 @@ export default function Home() {
           transition: opacity .9s ease .2s, transform .9s cubic-bezier(.4,0,.2,1) .2s;
         }
         .hero-content--in { opacity: 1; transform: translateY(0); }
+
         .hero-title {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
@@ -585,6 +588,7 @@ export default function Home() {
           text-shadow: 0 2px 40px rgba(0,0,0,.3);
         }
         .hero-title em { font-style: italic; color: var(--amber); }
+
         .hero-sub {
           font-family: 'DM Sans', sans-serif;
           font-weight: 300;
@@ -594,7 +598,9 @@ export default function Home() {
           max-width: 480px;
           margin: 0 auto 2.5rem;
         }
+
         .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
         .scroll-hint {
           position: absolute;
           bottom: 2.5rem; left: 50%;
@@ -614,6 +620,7 @@ export default function Home() {
           0%,100% { opacity: .38; transform: translateX(-50%) translateY(0); }
           50% { opacity: .8; transform: translateX(-50%) translateY(4px); }
         }
+
         /* ══════════════════════════════
            2. OGŁOSZENIA
         ══════════════════════════════ */
@@ -621,16 +628,19 @@ export default function Home() {
           background: var(--cream);
           align-items: flex-start;
         }
+
         .cards-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 1.5rem;
           margin-top: 2.5rem;
         }
+
         @keyframes cardIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+
         .news-card {
           background: var(--white);
           border-radius: 2px;
@@ -641,6 +651,7 @@ export default function Home() {
           transition: box-shadow .25s, transform .25s;
         }
         .news-card:hover { box-shadow: 0 8px 40px rgba(0,0,0,.1); transform: translateY(-3px); }
+
         .news-card__date {
           font-family: 'DM Sans', sans-serif;
           font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
@@ -656,12 +667,14 @@ export default function Home() {
           font-size: .85rem; font-weight: 300;
           color: var(--olive-light); line-height: 1.65;
         }
+
         /* ══════════════════════════════
            3. POKOJE
         ══════════════════════════════ */
         .pokoje-section {
           background: var(--olive-dark);
         }
+
         .pokoje-layout {
           display: grid;
           grid-template-columns: 1fr 1.6fr;
@@ -669,11 +682,13 @@ export default function Home() {
           align-items: center;
           width: 100%;
         }
+
         .pokoje-cards {
           display: flex;
           flex-direction: column;
           gap: 1px;
         }
+
         .pokoj-card {
           display: flex;
           align-items: center;
@@ -691,6 +706,7 @@ export default function Home() {
           border-color: rgba(200,151,58,.3);
           transform: translateX(4px);
         }
+
         .pokoj-card__num {
           font-family: 'Cormorant Garamond', serif;
           font-size: 2.2rem; font-weight: 300;
@@ -698,7 +714,9 @@ export default function Home() {
           flex-shrink: 0; width: 3rem;
           line-height: 1;
         }
+
         .pokoj-card__body { flex: 1; }
+
         .pokoj-card__name {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400; font-size: 1.1rem;
@@ -714,6 +732,7 @@ export default function Home() {
           font-size: .72rem; color: var(--amber);
           letter-spacing: .05em;
         }
+
         .pokoj-card__arrow {
           color: rgba(200,151,58,.5);
           font-size: 1.1rem;
@@ -723,16 +742,19 @@ export default function Home() {
           transform: translateX(4px);
           color: var(--amber);
         }
+
         /* ══════════════════════════════
            4. RESTAURACJA
         ══════════════════════════════ */
         .restauracja-section { background: var(--cream-dark); }
+
         .menu-grid {
           margin-top: 2.5rem;
           display: flex;
           flex-direction: column;
           max-width: 680px;
         }
+
         .menu-item {
           display: flex;
           align-items: center;
@@ -743,6 +765,7 @@ export default function Home() {
           gap: 1rem;
         }
         .menu-item:first-child { border-top: 1px solid rgba(74,82,64,.12); }
+
         .menu-item__left {
           display: flex; flex-direction: column; gap: .25rem;
         }
@@ -761,6 +784,7 @@ export default function Home() {
           font-size: 1.1rem; font-weight: 300;
           color: var(--olive); white-space: nowrap; flex-shrink: 0;
         }
+
         .restauracja-footer {
           display: flex; align-items: center; justify-content: space-between;
           margin-top: 2rem; flex-wrap: wrap; gap: 1rem;
@@ -770,10 +794,12 @@ export default function Home() {
           font-size: .8rem; font-weight: 300;
           color: var(--olive-light); letter-spacing: .05em;
         }
+
         /* ══════════════════════════════
            5. ATRAKCJE
         ══════════════════════════════ */
         .atrakcje-section { background: var(--olive); }
+
         .atrakcje-layout {
           display: grid;
           grid-template-columns: 1.6fr 1fr;
@@ -781,11 +807,13 @@ export default function Home() {
           align-items: center;
           width: 100%;
         }
+
         .atrakcje-cards {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 1rem;
         }
+
         .atrakcja-card {
           background: rgba(255,255,255,.06);
           border: 1px solid rgba(255,255,255,.1);
@@ -798,7 +826,9 @@ export default function Home() {
           background: rgba(255,255,255,.1);
           transform: translateY(-3px);
         }
+
         .atrakcja-card__icon { font-size: 1.8rem; display: block; margin-bottom: .75rem; }
+
         .atrakcja-card__name {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400; font-size: 1.05rem;
@@ -810,6 +840,7 @@ export default function Home() {
           font-size: .68rem; color: rgba(255,255,255,.45);
         }
         .atrakcja-card__meta span + span::before { content: '·'; margin-right: .4rem; }
+
         .tag {
           font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
           padding: .15rem .5rem; border-radius: 1px;
@@ -817,10 +848,12 @@ export default function Home() {
         .tag--latwa { background: rgba(120,180,80,.2); color: #a8d87a; }
         .tag--srednia { background: rgba(200,151,58,.2); color: var(--amber); }
         .tag--trudna { background: rgba(200,80,60,.2); color: #e8907a; }
+
         /* ══════════════════════════════
            6. KONTAKT
         ══════════════════════════════ */
         .kontakt-section { background: var(--olive-deep); }
+
         .kontakt-layout {
           display: grid;
           grid-template-columns: 1fr 1.4fr;
@@ -828,10 +861,12 @@ export default function Home() {
           align-items: start;
           width: 100%;
         }
+
         .kontakt-details {
           display: flex; flex-direction: column; gap: 1.5rem;
           margin-top: 1rem;
         }
+
         .kontakt-item {
           display: flex; align-items: flex-start; gap: 1rem;
         }
@@ -847,6 +882,7 @@ export default function Home() {
           transition: color .25s;
         }
         a.kontakt-item__val:hover { color: var(--amber); }
+
         /* FORM */
         .kontakt-form-wrap {
           background: rgba(255,255,255,.04);
@@ -854,8 +890,11 @@ export default function Home() {
           border-radius: 2px;
           padding: 2.5rem;
         }
+
         .kontakt-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
         .kontakt-form label {
           display: flex; flex-direction: column; gap: .5rem;
         }
@@ -884,6 +923,7 @@ export default function Home() {
           border-color: rgba(200,151,58,.5);
           background: rgba(255,255,255,.08);
         }
+
         .form-success {
           text-align: center; padding: 3rem 2rem;
           display: flex; flex-direction: column; align-items: center; gap: 1rem;
@@ -904,6 +944,7 @@ export default function Home() {
           font-family: 'DM Sans', sans-serif;
           font-size: .85rem; color: rgba(255,255,255,.45);
         }
+
         /* ══ RESPONSIVE ══ */
         @media (max-width: 900px) {
           .pokoje-layout,
@@ -917,12 +958,14 @@ export default function Home() {
           .section-inner { padding: 4rem 1.5rem; }
           .form-row { grid-template-columns: 1fr; }
         }
+
         @media (max-width: 540px) {
           .atrakcje-cards { grid-template-columns: 1fr; }
           .cards-grid { grid-template-columns: 1fr; }
           .hero-btns { flex-direction: column; align-items: center; }
         }
       `}</style>
+
       <HeroSection />
       <OgloszeniaSection />
       <PokojeSections />

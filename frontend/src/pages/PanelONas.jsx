@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
-const MEDIA = "http://localhost:8000";
+const API = import.meta.env.VITE_API_URL;
+const MEDIA = import.meta.env.VITE_MEDIA_URL;
 
 const getHeaders = () => ({
   Authorization: `Token ${localStorage.getItem("token")}`,
@@ -54,13 +54,13 @@ function FormularzSekcji({ sekcja, onSave, onCancel }) {
         await axios.patch(
           `${API}/core/manage/o-nas/${sekcja.id}/`,
           fd,
-          { headers: { ...getHeaders(), "Content-Type": "multipart/form-data" } }
+          { headers: getHeaders() }
         );
       } else {
         await axios.post(
           `${API}/core/manage/o-nas/`,
           fd,
-          { headers: { ...getHeaders(), "Content-Type": "multipart/form-data" } }
+          { headers: getHeaders() }
         );
       }
       onSave();

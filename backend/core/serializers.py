@@ -30,4 +30,4 @@ class KontaktSerializer(serializers.ModelSerializer):
     class Meta:
         model = Kontakt
         fields = '__all__'
-        read_only_fields = ['data_wyslania', 'przeczytana']
+        read_only_fields = ['data_wyslania']

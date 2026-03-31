@@ -29,7 +29,6 @@ class CenaPokojuSerializer(serializers.ModelSerializer):
 class TypPokojuSerializer(serializers.ModelSerializer):
     zdjecia = ZdjeciePokojuSerializer(many=True, read_only=True)
     ceny = CenaPokojuSerializer(many=True, read_only=True)
-    udogodnienia = UdogodnieniePokojuSerializer(many=True, read_only=True)
 
     class Meta:
         model = TypPokoju
@@ -43,6 +42,8 @@ class PokojSerializer(serializers.ModelSerializer):
         source='typ',
         write_only=True
     )
+    udogodnienia = UdogodnieniePokojuSerializer(many=True, read_only=True)
+    
 
     class Meta:
         model = Pokoj

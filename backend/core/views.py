@@ -4,7 +4,7 @@ from rest_framework.generics import (
     ListAPIView, RetrieveAPIView,
     ListCreateAPIView, RetrieveUpdateDestroyAPIView
 )
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny, DjangoModelPermissions
 from .models import UstawieniaStrony, ZdjecieHero, ONas, Ogloszenie, Kontakt
 from .serializers import (
     UstawieniaStronySerializer, ZdjecieHeroSerializer,
@@ -97,14 +97,12 @@ class KontaktCreateView(ListCreateAPIView):
     POST - dla wszystkich (wysyłanie formularza)
     """
     serializer_class = KontaktSerializer
+    queryset = Kontakt.objects.all()
 
     def get_permissions(self):
         if self.request.method == 'POST':
             return [AllowAny()]
         return [IsAuthenticated()]
-
-    def get_queryset(self):
-        return Kontakt.objects.all()
 
 
 class KontaktDetailView(RetrieveUpdateDestroyAPIView):

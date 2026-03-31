@@ -1,5 +1,5 @@
 from django.db import models
-
+from utils.images import resize_image
 
 class SekcjaGalerii(models.Model):
     """Sekcje tematyczne galerii"""

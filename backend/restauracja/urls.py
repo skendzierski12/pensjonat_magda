@@ -21,6 +21,8 @@ urlpatterns = [
     path('manage/sale/<int:pk>/', views.SalaDetailView.as_view(), name='sale-detail'),
     path('manage/wyroby/', views.WyrobManageView.as_view(), name='wyroby-manage'),
     path('manage/wyroby/<int:pk>/', views.WyrobDetailView.as_view(), name='wyroby-detail'),
+    path('manage/kategorie-wyrobow/', views.KategoriaWyrobuManageView.as_view(), name='kategorie-wyrobow-manage'),
+    path('manage/kategorie-wyrobow/<int:pk>/', views.KategoriaWyrobuDetailView.as_view(), name='kategorie-wyrobow-detail'),    
     path('manage/godziny/', views.GodzinyOtwarciaManageView.as_view(), name='godziny-manage'),
     path('manage/godziny/<int:pk>/', views.GodzinyOtwarciaDetailView.as_view(), name='godziny-detail'),
 ]

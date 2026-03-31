@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
-
+const API = import.meta.env.VITE_API_URL;
 const getHeaders = () => ({
   Authorization: `Token ${localStorage.getItem("token")}`,
 });
@@ -13,6 +12,59 @@ const JEDNOSTKI = [
   { value: "szt",  label: "za sztukę" },
   { value: "opak", label: "za opakowanie" },
 ];
+
+// ─── FORMULARZ KATEGORII ───
+function FormularzKategorii({ kategoria, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    nazwa:     kategoria?.nazwa     || "",
+    kolejnosc: kategoria?.kolejnosc ?? 0,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error,  setError]  = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(f => ({ ...f, [name]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!form.nazwa.trim()) { setError("Nazwa jest wymagana."); return; }
+    setSaving(true); setError("");
+    try {
+      if (kategoria) {
+        await axios.put(`${API}/restauracja/manage/kategorie-wyrobow/${kategoria.id}/`, form, { headers: getHeaders() });
+      } else {
+        await axios.post(`${API}/restauracja/manage/kategorie-wyrobow/`, form, { headers: getHeaders() });
+      }
+      onSave();
+    } catch {
+      setError("Błąd zapisu. Sprawdź dane i spróbuj ponownie.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="formularz">
+      <h2 className="formularz__title">{kategoria ? "Edytuj kategorię" : "Nowa kategoria"}</h2>
+      <div className="form-row-3">
+        <div className="form-field" style={{ gridColumn: "1/3" }}>
+          <label className="form-label">Nazwa *</label>
+          <input className="form-input" name="nazwa" value={form.nazwa} onChange={handleChange} placeholder="np. Kiełbasy" />
+        </div>
+        <div className="form-field">
+          <label className="form-label">Kolejność</label>
+          <input className="form-input" type="number" name="kolejnosc" value={form.kolejnosc} onChange={handleChange} min="0" />
+        </div>
+      </div>
+      {error && <div className="form-error">{error}</div>}
+      <div className="form-actions">
+        <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? "Zapisywanie..." : "Zapisz"}</button>
+        <button className="btn-secondary" onClick={onCancel}>Anuluj</button>
+      </div>
+    </div>
+  );
+}
 
 // ─── FORMULARZ WYROBU ───
 function FormularzWyrobu({ wyrob, kategorie, onSave, onCancel }) {
@@ -58,7 +110,6 @@ function FormularzWyrobu({ wyrob, kategorie, onSave, onCancel }) {
   return (
     <div className="formularz">
       <h2 className="formularz__title">{wyrob ? "Edytuj wyrób" : "Nowy wyrób własny"}</h2>
-
       <div className="form-row-3">
         <div className="form-field" style={{ gridColumn: "1/3" }}>
           <label className="form-label">Nazwa *</label>
@@ -69,7 +120,6 @@ function FormularzWyrobu({ wyrob, kategorie, onSave, onCancel }) {
           <input className="form-input" type="number" name="kolejnosc" value={form.kolejnosc} onChange={handleChange} min="0" />
         </div>
       </div>
-
       <div className="form-row-3">
         <div className="form-field">
           <label className="form-label">Kategoria *</label>
@@ -93,30 +143,25 @@ function FormularzWyrobu({ wyrob, kategorie, onSave, onCancel }) {
           </select>
         </div>
       </div>
-
       {form.cena && (
         <div className="cena-preview">
           Cena: <strong>{parseFloat(form.cena || 0).toFixed(2)} zł {jednostkaLabel}</strong>
         </div>
       )}
-
       <div className="form-field">
         <label className="form-label">Opis *</label>
         <textarea className="form-input form-textarea" name="opis" value={form.opis} onChange={handleChange} placeholder="Opis wyrobu..." rows={3} />
       </div>
-
       <div className="form-field">
         <label className="form-label">Skład</label>
         <textarea className="form-input form-textarea" name="sklad" value={form.sklad} onChange={handleChange} placeholder="Składniki produktu..." rows={2} />
       </div>
-
       <div className="form-checkboxes">
         <label className="form-checkbox">
           <input type="checkbox" name="dostepny" checked={form.dostepny} onChange={handleChange} />
           <span>Dostępny</span>
         </label>
       </div>
-
       {error && <div className="form-error">{error}</div>}
       <div className="form-actions">
         <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? "Zapisywanie..." : "Zapisz"}</button>
@@ -129,19 +174,23 @@ function FormularzWyrobu({ wyrob, kategorie, onSave, onCancel }) {
 // ─── GŁÓWNY WIDOK ───
 export default function PanelWyroby() {
   const navigate = useNavigate();
-  const [wyroby,    setWyroby]    = useState([]);
-  const [kategorie, setKategorie] = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [widok,     setWidok]     = useState("lista");
-  const [edytowany, setEdytowany] = useState(null);
-  const [usuwany,   setUsuwany]   = useState(null);
-  const [filtrKat,  setFiltrKat]  = useState("");
+  const [wyroby,       setWyroby]       = useState([]);
+  const [kategorie,    setKategorie]    = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [aktywnyTab,   setAktywnyTab]   = useState("wyroby");
+  const [widok,        setWidok]        = useState("lista");
+  const [edytowany,    setEdytowany]    = useState(null);
+  const [usuwany,      setUsuwany]      = useState(null);
+  const [widokKat,     setWidokKat]     = useState("lista");
+  const [edytowanaKat, setEdytowanaKat] = useState(null);
+  const [usuwanaKat,   setUsuwanaKat]   = useState(null);
+  const [filtrKat,     setFiltrKat]     = useState("");
 
   const pobierz = async () => {
     try {
       const [rWyroby, rKat] = await Promise.all([
         axios.get(`${API}/restauracja/manage/wyroby/`, { headers: getHeaders() }),
-        axios.get(`${API}/restauracja/kategorie-wyrobow/`),
+        axios.get(`${API}/restauracja/manage/kategorie-wyrobow/`, { headers: getHeaders() }),
       ]);
       setWyroby(rWyroby.data);
       setKategorie(rKat.data);
@@ -158,6 +207,16 @@ export default function PanelWyroby() {
       setUsuwany(null); pobierz();
     } catch {
       alert("Błąd podczas usuwania.");
+    }
+  };
+
+  const handleUsunKat = async (id) => {
+    try {
+      await axios.delete(`${API}/restauracja/manage/kategorie-wyrobow/${id}/`, { headers: getHeaders() });
+      setUsuwanaKat(null); pobierz();
+    } catch {
+      alert("Nie można usunąć kategorii — prawdopodobnie ma przypisane wyroby.");
+      setUsuwanaKat(null);
     }
   };
 
@@ -199,7 +258,33 @@ export default function PanelWyroby() {
     );
   }
 
-  // Grupuj wyroby po kategorii do wyświetlenia
+  if (widokKat !== "lista") {
+    return (
+      <>
+        <style>{STYLES}</style>
+        <div className="panel-page">
+          <header className="panel-topbar">
+            <Link to="/panel" className="topbar-back">← Panel główny</Link>
+            <button className="btn-logout" onClick={handleLogout}>Wyloguj</button>
+          </header>
+          <main className="panel-main">
+            <div className="page-header">
+              <div>
+                <div className="page-label">Panel zarządzania</div>
+                <h1 className="page-title">Wyroby własne</h1>
+              </div>
+            </div>
+            <FormularzKategorii
+              kategoria={edytowanaKat}
+              onSave={() => { setWidokKat("lista"); setEdytowanaKat(null); pobierz(); }}
+              onCancel={() => { setWidokKat("lista"); setEdytowanaKat(null); }}
+            />
+          </main>
+        </div>
+      </>
+    );
+  }
+
   const widoczne = filtrKat
     ? wyroby.filter(w => String(w.kategoria) === filtrKat)
     : wyroby;
@@ -212,7 +297,6 @@ export default function PanelWyroby() {
           <Link to="/panel" className="topbar-back">← Panel główny</Link>
           <button className="btn-logout" onClick={handleLogout}>Wyloguj</button>
         </header>
-
         <main className="panel-main">
           <div className="page-header">
             <div>
@@ -221,71 +305,110 @@ export default function PanelWyroby() {
             </div>
           </div>
 
-          <div className="tab-header">
-            <span className="tab-count">{widoczne.length} wyrobów</span>
-            <div className="tab-header__right">
-              <select
-                className="form-input form-select filtr-select"
-                value={filtrKat}
-                onChange={e => setFiltrKat(e.target.value)}
-              >
-                <option value="">Wszystkie kategorie</option>
-                {kategorie.map(k => (
-                  <option key={k.id} value={String(k.id)}>{k.nazwa}</option>
-                ))}
-              </select>
-              <button className="btn-primary" onClick={() => setWidok("nowy")}>+ Dodaj wyrób</button>
-            </div>
+          <div className="tabs">
+            <button className={`tab ${aktywnyTab === "wyroby" ? "tab--active" : ""}`} onClick={() => setAktywnyTab("wyroby")}>Wyroby</button>
+            <button className={`tab ${aktywnyTab === "kategorie" ? "tab--active" : ""}`} onClick={() => setAktywnyTab("kategorie")}>Kategorie</button>
           </div>
 
-          {loading ? (
-            <div className="skeleton-list">{[1,2,3,4].map(i => <div key={i} className="skeleton-row" />)}</div>
-          ) : widoczne.length === 0 ? (
-            <div className="empty-state">
-              <span className="empty-state__ikona">🥩</span>
-              <p>Brak wyrobów własnych.</p>
-            </div>
-          ) : (
-            <div className="lista">
-              {widoczne.map(w => {
-                const kat = kategorie.find(k => k.id === w.kategoria);
-                const jednostka = JEDNOSTKI.find(j => j.value === w.jednostka);
-                return (
-                  <div key={w.id} className={`lista-row ${!w.dostepny ? "lista-row--niedostepny" : ""}`}>
-                    <div className="lista-row__content">
-                      <div className="lista-row__top">
-                        <span className="lista-row__tytul">{w.nazwa}</span>
-                        <div className="lista-row__badges">
-                          <span className="badge badge--amber">
-                            {parseFloat(w.cena).toFixed(2)} zł {jednostka?.label}
-                          </span>
-                          {kat && <span className="badge badge--gray">{kat.nazwa}</span>}
-                          {w.dostepny
-                            ? <span className="badge badge--green">Dostępny</span>
-                            : <span className="badge badge--niedostepny">Niedostępny</span>
-                          }
+          {aktywnyTab === "wyroby" && (
+            <>
+              <div className="tab-header">
+                <span className="tab-count">{widoczne.length} wyrobów</span>
+                <div className="tab-header__right">
+                  <select
+                    className="form-input form-select filtr-select"
+                    value={filtrKat}
+                    onChange={e => setFiltrKat(e.target.value)}
+                  >
+                    <option value="">Wszystkie kategorie</option>
+                    {kategorie.map(k => (
+                      <option key={k.id} value={String(k.id)}>{k.nazwa}</option>
+                    ))}
+                  </select>
+                  <button className="btn-primary" onClick={() => setWidok("nowy")}>+ Dodaj wyrób</button>
+                </div>
+              </div>
+              {loading ? (
+                <div className="skeleton-list">{[1,2,3,4].map(i => <div key={i} className="skeleton-row" />)}</div>
+              ) : widoczne.length === 0 ? (
+                <div className="empty-state">
+                  <span className="empty-state__ikona">🥩</span>
+                  <p>Brak wyrobów własnych.</p>
+                </div>
+              ) : (
+                <div className="lista">
+                  {widoczne.map(w => {
+                    const kat = kategorie.find(k => k.id === w.kategoria);
+                    const jednostka = JEDNOSTKI.find(j => j.value === w.jednostka);
+                    return (
+                      <div key={w.id} className={`lista-row ${!w.dostepny ? "lista-row--niedostepny" : ""}`}>
+                        <div className="lista-row__content">
+                          <div className="lista-row__top">
+                            <span className="lista-row__tytul">{w.nazwa}</span>
+                            <div className="lista-row__badges">
+                              <span className="badge badge--amber">
+                                {parseFloat(w.cena).toFixed(2)} zł {jednostka?.label}
+                              </span>
+                              {kat && <span className="badge badge--gray">{kat.nazwa}</span>}
+                              {w.dostepny
+                                ? <span className="badge badge--green">Dostępny</span>
+                                : <span className="badge badge--niedostepny">Niedostępny</span>
+                              }
+                            </div>
+                          </div>
+                          <div className="lista-row__opis">{w.opis}</div>
+                          {w.sklad && (
+                            <div className="lista-row__sklad">
+                              <span className="sklad-label">Skład:</span> {w.sklad}
+                            </div>
+                          )}
+                        </div>
+                        <div className="lista-row__actions">
+                          <button className="btn-edit" onClick={() => { setEdytowany(w); setWidok("edytuj"); }}>Edytuj</button>
+                          <button className="btn-delete" onClick={() => setUsuwany(w)}>Usuń</button>
                         </div>
                       </div>
-                      <div className="lista-row__opis">{w.opis}</div>
-                      {w.sklad && (
-                        <div className="lista-row__sklad">
-                          <span className="sklad-label">Skład:</span> {w.sklad}
-                        </div>
-                      )}
-                    </div>
-                    <div className="lista-row__actions">
-                      <button className="btn-edit" onClick={() => { setEdytowany(w); setWidok("edytuj"); }}>Edytuj</button>
-                      <button className="btn-delete" onClick={() => setUsuwany(w)}>Usuń</button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
 
-          <div className="admin-hint">
-            💡 Zarządzanie <strong>kategoriami wyrobów</strong> dostępne jest w <a href="http://localhost:8000/admin" target="_blank" rel="noreferrer">Django Admin</a>.
-          </div>
+          {aktywnyTab === "kategorie" && (
+            <>
+              <div className="tab-header">
+                <span className="tab-count">{kategorie.length} kategorii</span>
+                <button className="btn-primary" onClick={() => setWidokKat("nowy")}>+ Dodaj kategorię</button>
+              </div>
+              {loading ? (
+                <div className="skeleton-list">{[1,2,3].map(i => <div key={i} className="skeleton-row" />)}</div>
+              ) : kategorie.length === 0 ? (
+                <div className="empty-state">
+                  <span className="empty-state__ikona">📦</span>
+                  <p>Brak kategorii wyrobów.</p>
+                </div>
+              ) : (
+                <div className="lista">
+                  {kategorie.map(k => (
+                    <div key={k.id} className="lista-row">
+                      <div className="lista-row__content">
+                        <div className="lista-row__top">
+                          <span className="lista-row__tytul">{k.nazwa}</span>
+                          <span className="badge badge--gray">kolejność: {k.kolejnosc}</span>
+                          <span className="badge badge--olive">{wyroby.filter(w => w.kategoria === k.id).length} wyrobów</span>
+                        </div>
+                      </div>
+                      <div className="lista-row__actions">
+                        <button className="btn-edit" onClick={() => { setEdytowanaKat(k); setWidokKat("edytuj"); }}>Edytuj</button>
+                        <button className="btn-delete" onClick={() => setUsuwanaKat(k)}>Usuń</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </main>
       </div>
 
@@ -301,6 +424,19 @@ export default function PanelWyroby() {
           </div>
         </div>
       )}
+
+      {usuwanaKat && (
+        <div className="modal-overlay" onClick={() => setUsuwanaKat(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3 className="modal__title">Usuń kategorię</h3>
+            <p className="modal__text">Czy na pewno chcesz usunąć kategorię <strong>„{usuwanaKat.nazwa}"</strong>? Tej operacji nie można cofnąć.</p>
+            <div className="modal__actions">
+              <button className="btn-danger" onClick={() => handleUsunKat(usuwanaKat.id)}>Tak, usuń</button>
+              <button className="btn-secondary" onClick={() => setUsuwanaKat(null)}>Anuluj</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -308,7 +444,6 @@ export default function PanelWyroby() {
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --olive:       #4a5240;
     --olive-dark:  #2e3328;
@@ -320,10 +455,8 @@ const STYLES = `
     --white:       #ffffff;
     --border:      rgba(74,82,64,.12);
   }
-
   body { font-family: 'DM Sans', sans-serif; background: var(--cream); min-height: 100vh; }
   .panel-page { min-height: 100vh; display: flex; flex-direction: column; }
-
   .panel-topbar {
     background: var(--olive-dark); height: 56px; padding: 0 2.5rem;
     display: flex; align-items: center; justify-content: space-between;
@@ -343,9 +476,7 @@ const STYLES = `
     border-radius: 1px; cursor: pointer; transition: all .2s;
   }
   .btn-logout:hover { color: var(--white); border-color: rgba(255,255,255,.3); }
-
   .panel-main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2.5rem 4rem; width: 100%; }
-
   .page-header {
     display: flex; align-items: flex-start; justify-content: space-between;
     flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
@@ -358,7 +489,15 @@ const STYLES = `
   .page-title {
     font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--olive-dark);
   }
-
+  .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .tab {
+    font-family: 'DM Sans', sans-serif; font-size: .72rem; font-weight: 400;
+    letter-spacing: .15em; text-transform: uppercase; color: var(--olive-light);
+    background: none; border: none; border-bottom: 2px solid transparent;
+    padding: .75rem 1.5rem; cursor: pointer; transition: all .2s; margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--olive); }
+  .tab--active { color: var(--amber); border-bottom-color: var(--amber); }
   .tab-header {
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: .75rem; margin-bottom: 1.25rem;
@@ -368,7 +507,6 @@ const STYLES = `
     font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 300; color: var(--olive-light);
   }
   .filtr-select { width: auto; min-width: 180px; font-size: .78rem; padding: .45rem .75rem; }
-
   .lista { display: flex; flex-direction: column; gap: .75rem; }
   .lista-row {
     background: var(--white); border: 1px solid var(--border); border-radius: 2px;
@@ -399,7 +537,6 @@ const STYLES = `
   }
   .sklad-label { font-weight: 400; color: var(--olive); }
   .lista-row__actions { display: flex; gap: .5rem; flex-shrink: 0; align-items: flex-start; }
-
   .badge {
     font-family: 'DM Sans', sans-serif; font-size: .6rem; font-weight: 400;
     letter-spacing: .1em; text-transform: uppercase; padding: .2rem .6rem; border-radius: 1px;
@@ -409,17 +546,6 @@ const STYLES = `
   .badge--gray       { background: rgba(74,82,64,.08); color: var(--olive-light); border: 1px solid var(--border); }
   .badge--olive      { background: rgba(74,82,64,.08); color: var(--olive); border: 1px solid var(--border); }
   .badge--niedostepny { background: rgba(180,80,80,.08); color: #c05050; border: 1px solid rgba(180,80,80,.2); }
-
-  .admin-hint {
-    margin-top: 2rem; padding: .85rem 1.1rem;
-    font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 300; line-height: 1.6;
-    color: var(--olive-light); background: var(--cream-dark);
-    border: 1px solid var(--border); border-radius: 1px;
-  }
-  .admin-hint a { color: var(--amber); text-decoration: none; }
-  .admin-hint a:hover { text-decoration: underline; }
-
-  /* CENA PREVIEW */
   .cena-preview {
     font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 300;
     color: var(--olive-light); margin-top: -.75rem; margin-bottom: 1.25rem;
@@ -427,8 +553,6 @@ const STYLES = `
     border-left: 2px solid rgba(200,151,58,.35); border-radius: 1px;
   }
   .cena-preview strong { color: var(--amber); font-weight: 500; }
-
-  /* BUTTONS */
   .btn-primary {
     font-family: 'DM Sans', sans-serif; font-size: .72rem; font-weight: 400;
     letter-spacing: .15em; text-transform: uppercase;
@@ -465,8 +589,6 @@ const STYLES = `
     border: none; border-radius: 1px; padding: .7rem 1.5rem; cursor: pointer; transition: background .2s;
   }
   .btn-danger:hover { background: #a03030; }
-
-  /* FORMULARZ */
   .formularz {
     background: var(--white); border: 1px solid var(--border);
     border-radius: 2px; padding: 2rem; max-width: 680px;
@@ -504,8 +626,6 @@ const STYLES = `
     background: rgba(180,80,80,.07); border-left: 2px solid rgba(180,80,80,.4);
   }
   .form-actions { display: flex; gap: .75rem; }
-
-  /* MODAL */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.5);
     display: flex; align-items: center; justify-content: center; padding: 1rem;
@@ -523,7 +643,6 @@ const STYLES = `
     line-height: 1.6; color: var(--olive); margin-bottom: 1.5rem;
   }
   .modal__actions { display: flex; gap: .75rem; }
-
   @keyframes shimmer {
     0%   { background-position: -400px 0; }
     100% { background-position:  400px 0; }
@@ -534,13 +653,11 @@ const STYLES = `
     background: linear-gradient(90deg, #e2ddd6 25%, #ede9e2 50%, #e2ddd6 75%);
     background-size: 800px 100%; animation: shimmer 1.4s infinite;
   }
-
   .empty-state {
     text-align: center; padding: 4rem 2rem;
     font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 300; color: var(--olive-light);
   }
   .empty-state__ikona { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
-
   @media (max-width: 700px) {
     .form-row-3 { grid-template-columns: 1fr; }
     .form-row-3 .form-field[style] { grid-column: auto !important; }

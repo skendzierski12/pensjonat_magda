@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 const getHeaders = () => ({
   Authorization: `Token ${localStorage.getItem("token")}`,
@@ -496,7 +496,7 @@ function TabZdjecia() {
           {zdjecia.map(z => (
             <div key={z.id} className={`zdjecie-card${z.okladka ? " zdjecie-card--okladka" : ""}`}>
               <div className="zdjecie-card__img-wrap">
-                {/* DRF zwraca pełny URL z http://localhost:8000/media/... */}
+                {/* DRF zwraca pełny URL z http://neil193.mikrus.xyz:8000/media/... */}
                 <img src={z.zdjecie} alt={z.opis || "Zdjęcie pokoju"} className="zdjecie-card__img" />
                 {z.okladka && <span className="zdjecie-card__badge">Okładka</span>}
               </div>

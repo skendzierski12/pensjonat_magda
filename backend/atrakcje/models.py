@@ -1,5 +1,5 @@
 from django.db import models
-
+from utils.images import resize_image
 
 class KategoriaAtrakcji(models.Model):
     """Kategorie atrakcji np. Szlaki, Zabytki, Sport, Rekreacja"""

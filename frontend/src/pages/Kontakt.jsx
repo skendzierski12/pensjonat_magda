@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import WeatherWidget from '../components/WeatherWidget';
 import axios from "axios";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 function useReveal(threshold = 0.1) {
   const ref = useRef(null);
@@ -630,7 +630,7 @@ export default function Kontakt() {
                 </div>                                                                                                                                                                                                                      
               ))}                                                                                                                                                                                                                           
             </div>
-	        <div className="dojazd-pogoda">        {/* ← DODAJ */}
+	        <div className="dojazd-pogoda" style={{ marginTop: "1.5rem" }}>        {/* ← DODAJ */}
         <WeatherWidget />
       </div>
       		</div>
@@ -639,7 +639,7 @@ export default function Kontakt() {
                                                                                                                                                                                                                                             
           <div className="kontakt-map">                                                                                                                                                                                                     
             <iframe                                                                                                                                                                                                                         
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2522.5!2d16.48!3d50.67!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTDCsDQwJzEyLjAiTiAxNsKwMjgnNDguMCJF!5e0!3m2!1spl!2spl!4v1234567890"          
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2527.191451780319!2d16.526722076971488!3d50.69783166952055!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470e48ebe97839b9%3A0xdd5271bbaac8a69b!2sPensjonat%20MAGDA!5e0!3m2!1spl!2spl!4v1774984346743!5m2!1spl!2spl"          
               allowFullScreen=""                                                                                                                                                                                                            
               loading="lazy"                                                                                                                                                                                                                
               title="Lokalizacja Pensjonat Magda"                                                                                                                                                                                           
